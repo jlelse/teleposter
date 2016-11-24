@@ -1,6 +1,9 @@
 package telegra.ph;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -16,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
 	private WebView webView;
 	private WebSettings webSettings;
 
+	@SuppressLint("SetJavaScriptEnabled")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -28,13 +32,22 @@ public class MainActivity extends AppCompatActivity {
 		// Enable Javascript
 		webSettings.setJavaScriptEnabled(true);
 
+		// Set WebViewClient
 		webView.setWebViewClient(new WebViewClient() {
+			@SuppressWarnings("deprecation")
+			@Override
+			public boolean shouldOverrideUrlLoading(WebView view, String url) {
+				return handleUrl(url);
+			}
+
+			@TargetApi(Build.VERSION_CODES.N)
 			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-				return true;
+				return handleUrl(request.getUrl().toString());
 			}
 		});
 
+		// Set WebChromeClient
 		webView.setWebChromeClient(new WebChromeClient() {
 
 		});
@@ -66,4 +79,10 @@ public class MainActivity extends AppCompatActivity {
 				return super.onOptionsItemSelected(item);
 		}
 	}
+
+	// Own methods
+	private boolean handleUrl(String url) {
+		return url.contains("telegra.ph");
+	}
+
 }
