@@ -5,15 +5,17 @@ android {
     buildToolsVersion "25.0.0"
     defaultConfig {
         applicationId "telegra.ph"
-        minSdkVersion 9
+        minSdkVersion 13
         targetSdkVersion 25
         versionCode 1
-        versionName "0.1 beta"
+        versionName "0.2 beta"
     }
     buildTypes {
         debug {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            applicationIdSuffix '.debug'
+            versionNameSuffix ' debug'
         }
         release {
             minifyEnabled true
@@ -24,4 +26,5 @@ android {
 
 dependencies {
     compile 'com.android.support:appcompat-v7:25.0.1'
+    compile 'com.afollestad.material-dialogs:core:0.9.1.0'
 }

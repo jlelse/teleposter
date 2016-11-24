@@ -8,16 +8,15 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.webkit.WebChromeClient;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.webkit.*;
 
 public class MainActivity extends AppCompatActivity {
 
 	private WebView webView;
-	private WebSettings webSettings;
+	private WebViewClient webViewClient;
+	private WebChromeClient webChromeClient;
+
+	private static final String TELEGRAPH = "http://telegra.ph/";
 
 	@SuppressLint("SetJavaScriptEnabled")
 	@Override
@@ -25,35 +24,50 @@ public class MainActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-
 		webView = (WebView) findViewById(R.id.webView);
-		webSettings = webView.getSettings();
+		WebSettings webSettings = webView.getSettings();
 
 		// Enable Javascript
 		webSettings.setJavaScriptEnabled(true);
+		// Allow File Access
+		webSettings.setAllowFileAccess(true);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+			webSettings.setAllowFileAccessFromFileURLs(true);
+		}
+		// Add Database support
+		webSettings.setDatabaseEnabled(true);
+		webSettings.setDomStorageEnabled(true);
+		// Add Cache support
+		webSettings.setAppCacheEnabled(true);
 
 		// Set WebViewClient
-		webView.setWebViewClient(new WebViewClient() {
+		webViewClient = new WebViewClient() {
 			@SuppressWarnings("deprecation")
 			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, String url) {
-				return handleUrl(url);
+				return urlAllowed(url);
 			}
 
 			@TargetApi(Build.VERSION_CODES.N)
 			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-				return handleUrl(request.getUrl().toString());
+				return urlAllowed(request.getUrl().toString());
 			}
-		});
+		};
+		webView.setWebViewClient(webViewClient);
 
 		// Set WebChromeClient
-		webView.setWebChromeClient(new WebChromeClient() {
+		webChromeClient = new WebChromeClient() {
+		};
+		webView.setWebChromeClient(webChromeClient);
 
-		});
+		// Check if app is opened to show special page
+		String urlToLoad = TELEGRAPH;
+		if (getIntent() != null && getIntent().getAction().equals(Intent.ACTION_VIEW) && getIntent().getDataString() != null && getIntent().getDataString().contains("telegra.ph"))
+			urlToLoad = getIntent().getDataString();
 
-		// Load Telegra.ph
-		webView.loadUrl("http://telegra.ph");
+		// Load URL
+		webView.loadUrl(urlToLoad);
 
 	}
 
@@ -80,8 +94,8 @@ public class MainActivity extends AppCompatActivity {
 		}
 	}
 
-	// Own methods
-	private boolean handleUrl(String url) {
+	// Extra methods
+	private boolean urlAllowed(String url) {
 		return url.contains("telegra.ph");
 	}
 
