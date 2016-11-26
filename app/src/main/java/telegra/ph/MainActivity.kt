@@ -27,10 +27,6 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			addPermittedHostname("telegra.ph")
 		}
 
-		webView?.settings?.apply {
-
-		}
-
 		// Check if app is opened to show special page
 		var urlToLoad = TELEGRAPH
 		if (intent.action == Intent.ACTION_VIEW && !intent.dataString.isNullOrBlank() && intent.dataString.contains("telegra.ph"))
@@ -74,6 +70,11 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 		super.onActivityResult(requestCode, resultCode, data)
 		webView?.onActivityResult(requestCode, resultCode, data)
+	}
+
+	override fun onBackPressed() {
+		if (webView?.onBackPressed() == false) return
+		else super.onBackPressed()
 	}
 
 	override fun onCreateOptionsMenu(menu: Menu): Boolean {
