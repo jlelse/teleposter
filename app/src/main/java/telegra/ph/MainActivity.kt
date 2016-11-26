@@ -3,9 +3,12 @@ package telegra.ph
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.text.Html
 import android.view.Menu
 import android.view.MenuItem
+import com.afollestad.materialdialogs.MaterialDialog
 import im.delight.android.webview.AdvancedWebView
 
 class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
@@ -92,6 +95,13 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 				shareIntent.putExtra(Intent.EXTRA_TITLE, webView?.title)
 				shareIntent.putExtra(Intent.EXTRA_TEXT, webView?.url)
 				startActivity(Intent.createChooser(shareIntent, getString(R.string.share)))
+				true
+			}
+			R.id.help -> {
+				MaterialDialog.Builder(this)
+						.title(R.string.help)
+						.content(R.string.help_text)
+						.show()
 				true
 			}
 			else -> super.onOptionsItemSelected(item)

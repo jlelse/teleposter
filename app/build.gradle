@@ -6,10 +6,10 @@ android {
     buildToolsVersion "25.0.0"
     defaultConfig {
         applicationId "telegra.ph"
-        minSdkVersion 9
+        minSdkVersion 13
         targetSdkVersion 25
-        versionCode 3
-        versionName "0.3 beta"
+        versionCode 4
+        versionName "0.4 beta"
         resConfigs "en"
     }
     buildTypes {
@@ -30,4 +30,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.0.1'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile 'com.github.delight-im:Android-AdvancedWebView:v3.0.0'
+    compile 'com.afollestad.material-dialogs:core:0.9.1.0'
 }
