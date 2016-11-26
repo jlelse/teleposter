@@ -1,58 +1,35 @@
 package telegra.ph
 
-import android.annotation.SuppressLint
-import android.annotation.TargetApi
 import android.content.Intent
-import android.os.Build
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
-import android.webkit.*
+import im.delight.android.webview.AdvancedWebView
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 
 	private val TELEGRAPH = "http://telegra.ph/"
 
-	private val webView: WebView? by lazy { findViewById(R.id.webView) as WebView }
+	private val webView: AdvancedWebView? by lazy { findViewById(R.id.webView) as AdvancedWebView }
 
-	@SuppressLint("SetJavaScriptEnabled")
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main)
 
-		webView?.settings?.apply {
-			// Enable Javascript
-			javaScriptEnabled = true
-			// Allow File Access
-			allowFileAccess = true
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-				allowFileAccessFromFileURLs = true
-			}
-			// Add Database support
-			databaseEnabled = true
-			domStorageEnabled = true
-			// Add Cache support
-			setAppCacheEnabled(true)
+		webView?.setListener(this, this)
+
+		webView?.apply {
+			setMixedContentAllowed(true)
+			setCookiesEnabled(true)
+			setThirdPartyCookiesEnabled(true)
+			addPermittedHostname("telegra.ph")
 		}
 
-		// Set WebViewClient
-		webView?.setWebViewClient(object : WebViewClient() {
-			@SuppressWarnings("deprecation")
-			override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-				return urlAllowed(url)
-			}
+		webView?.settings?.apply {
 
-			@TargetApi(Build.VERSION_CODES.N)
-			override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-				return urlAllowed(request.url.toString())
-			}
-		})
-
-		// Set WebChromeClient
-		webView?.setWebChromeClient(object : WebChromeClient() {
-
-		})
+		}
 
 		// Check if app is opened to show special page
 		var urlToLoad = TELEGRAPH
@@ -61,7 +38,42 @@ class MainActivity : AppCompatActivity() {
 
 		// Load URL
 		webView?.loadUrl(urlToLoad)
+	}
 
+	override fun onPageFinished(url: String?) {
+	}
+
+	override fun onPageStarted(url: String?, favicon: Bitmap?) {
+	}
+
+	override fun onPageError(errorCode: Int, description: String?, failingUrl: String?) {
+	}
+
+	override fun onDownloadRequested(url: String?, suggestedFilename: String?, mimeType: String?, contentLength: Long, contentDisposition: String?, userAgent: String?) {
+	}
+
+	override fun onExternalPageRequest(url: String?) {
+		AdvancedWebView.Browsers.openUrl(this, url)
+	}
+
+	override fun onResume() {
+		super.onResume()
+		webView?.onResume()
+	}
+
+	override fun onPause() {
+		webView?.onPause()
+		super.onPause()
+	}
+
+	override fun onDestroy() {
+		webView?.onDestroy()
+		super.onDestroy()
+	}
+
+	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+		super.onActivityResult(requestCode, resultCode, data)
+		webView?.onActivityResult(requestCode, resultCode, data)
 	}
 
 	override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -71,7 +83,7 @@ class MainActivity : AppCompatActivity() {
 	}
 
 	override fun onOptionsItemSelected(item: MenuItem): Boolean {
-		when (item.itemId) {
+		return when (item.itemId) {
 			R.id.share -> {
 				val shareIntent = Intent()
 				shareIntent.action = Intent.ACTION_SEND
@@ -79,13 +91,10 @@ class MainActivity : AppCompatActivity() {
 				shareIntent.putExtra(Intent.EXTRA_TITLE, webView?.title)
 				shareIntent.putExtra(Intent.EXTRA_TEXT, webView?.url)
 				startActivity(Intent.createChooser(shareIntent, getString(R.string.share)))
-				return true
+				true
 			}
-			else -> return super.onOptionsItemSelected(item)
+			else -> super.onOptionsItemSelected(item)
 		}
 	}
-
-	// Extra methods
-	private fun urlAllowed(url: String) = url.contains("telegra.ph")
 
 }

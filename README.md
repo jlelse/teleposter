@@ -1,12 +1,12 @@
-# Teleposter
+# Teleposter for Telegra.ph BETA
 
-This app is a completely independent wrapper made for Telegra.ph.
+Disclaimer: This wrapper is NOT an official wrapper and do not attempt to represent Telegram or Telegra.ph in any way.
 
-With this app it's very easy to create and share posts directly to Telegram.
+This app is a completely independent wrapper made for Telegra.ph, a new and simple publishing platform, made for easy sharing of articles and other stuff. With this app it's very easy to create and share these posts to any app.
 
-These posts are marked with "Instant View" and are able to open "instantly" in Telegram. If you don't believe how fast that is, try yourself!
+For more information aboout Telegra.ph visit https://telegram.org/blog/instant-view
 
-Telegra.ph is quite similar to Medium.com.
+Please take care, that this app might be unstable due to it's early development state!
 
 ## LICENSE
 
