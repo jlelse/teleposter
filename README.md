@@ -4,7 +4,7 @@ Disclaimer: This wrapper is NOT an official wrapper and do not attempt to repres
 
 This app is a completely independent wrapper made for Telegra.ph, a new and simple publishing platform, made for easy sharing of articles and other stuff. With this app it's very easy to create and share these posts to any app.
 
-For more information aboout Telegra.ph visit https://telegram.org/blog/instant-view
+For more information about Telegra.ph visit https://telegram.org/blog/instant-view
 
 Please take care, that this app might be unstable due to it's early development state!
 
