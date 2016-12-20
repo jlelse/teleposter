@@ -5,5 +5,4 @@
 	<string name="help_text">
 		<![CDATA[<h3>How to use text formatting?</h3>You can use formatting like <b>bold</b>, <i>italics</i> and so on at least on Lollipop and above by double tapping the text.<h3>The app only shows strange things!</h3>It\'s not verified, that the app will work on devices with KitKat or lower. In Lollipop Google introduced a Chrome based and updatable WebView with more features and fixes. I\'m sorry! But in December \'16 Telegram will publish docs for the Telegraph API, so I\'ll be able to create a native app instead of a wrapper. Be patient!]]>
 	</string>
-	<string name="format">Format</string>
 </resources>

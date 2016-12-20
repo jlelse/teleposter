@@ -2,10 +2,8 @@ package telegra.ph
 
 import android.content.Intent
 import android.graphics.Bitmap
-import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
 import com.afollestad.materialdialogs.MaterialDialog
@@ -22,7 +20,6 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 		setContentView(R.layout.activity_main)
 
 		webView?.setListener(this, this)
-
 		webView?.apply {
 			setMixedContentAllowed(true)
 			setCookiesEnabled(true)
@@ -30,13 +27,16 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			addPermittedHostname("telegra.ph")
 		}
 
-		// Check if app is opened to show special page
-		var urlToLoad = TELEGRAPH
-		if (intent.action == Intent.ACTION_VIEW && !intent.dataString.isNullOrBlank() && intent.dataString.contains("telegra.ph"))
-			urlToLoad = intent.dataString
-
-		// Load URL
-		webView?.loadUrl(urlToLoad)
+		if (intent.action == Intent.ACTION_VIEW && !intent.dataString.isNullOrBlank() && intent.dataString.contains("telegra.ph")) {
+			Api().getPage(intent.dataString.split("/").last()) { page ->
+				page?.let {
+					val html = "<h1>${it.title}</h1>${it.content}"
+					webView?.loadDataWithBaseURL(it.url, html, "text/html; charset=UTF-8", null, null)
+				}
+			}
+		} else {
+			webView?.loadUrl(TELEGRAPH)
+		}
 	}
 
 	override fun onPageFinished(url: String?) {
@@ -80,18 +80,6 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 		else super.onBackPressed()
 	}
 
-	override fun onActionModeStarted(mode: ActionMode?) {
-		val menu = mode?.menu
-		mode?.menuInflater?.inflate(R.menu.formatting, menu)
-		menu?.findItem(R.id.format)?.apply {
-			setOnMenuItemClickListener {
-				executeJavaScript("javascript:showFormatTooltip();")
-				false
-			}
-		}
-		super.onActionModeStarted(mode)
-	}
-
 	override fun onCreateOptionsMenu(menu: Menu): Boolean {
 		super.onCreateOptionsMenu(menu)
 		menuInflater.inflate(R.menu.activity_main, menu)
@@ -117,14 +105,6 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 				true
 			}
 			else -> super.onOptionsItemSelected(item)
-		}
-	}
-
-	private fun executeJavaScript(code: String) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-			webView?.evaluateJavascript(code, null)
-		} else {
-			webView?.loadUrl(code)
 		}
 	}
 

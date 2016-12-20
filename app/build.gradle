@@ -3,10 +3,10 @@ apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.0"
+    buildToolsVersion "25.0.2"
     defaultConfig {
         applicationId "telegra.ph"
-        minSdkVersion 13
+        minSdkVersion 15
         targetSdkVersion 25
         versionCode 4
         versionName "0.4 beta"
@@ -27,8 +27,11 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:25.0.1'
+    compile 'com.android.support:appcompat-v7:25.1.0'
+    compile 'com.android.support:recyclerview-v7:25.1.0'
+    compile 'com.android.support:support-v13:25.1.0'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile 'com.github.delight-im:Android-AdvancedWebView:v3.0.0'
     compile 'com.afollestad.material-dialogs:core:0.9.1.0'
+    compile 'com.afollestad:bridge:3.3.0'
 }
