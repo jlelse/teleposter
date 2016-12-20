@@ -30,7 +30,10 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 		if (intent.action == Intent.ACTION_VIEW && !intent.dataString.isNullOrBlank() && intent.dataString.contains("telegra.ph")) {
 			Api().getPage(intent.dataString.split("/").last()) { page ->
 				page?.let {
-					val html = "<h1>${it.title}</h1>${it.content}"
+					var html = "<h1>${it.title}</h1>"
+					if (!it.author_name.isNullOrEmpty() && !it.author_url.isNullOrBlank()) html += "<a href=\"${it.author_url}\">${it.author_name}</a><br>"
+					else if (!it.author_name.isNullOrEmpty()) html += "${it.author_name}<br>"
+					html += it.content
 					webView?.loadDataWithBaseURL(it.url, html, "text/html; charset=UTF-8", null, null)
 				}
 			}

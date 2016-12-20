@@ -10,14 +10,15 @@ class Api {
 
 	fun getPage(id: String?, callback: (page: Page?) -> Unit) {
 		Bridge.get("${ApiBase}getPage/$id?return_content=true").asJsonObject { response, jsonObject, bridgeException ->
-			callback(jsonObject?.parsePage())
+			if (jsonObject != null) callback(jsonObject.parsePage())
+			else callback(null)
 		}
 	}
 
 	private fun JSONObject.parsePage(): Page? {
 		val result: Page = Page()
 		if (optBoolean("ok", false)) {
-			optJSONObject("result").let {
+			optJSONObject("result")?.let {
 				result.path = it.optString("path", "")
 				result.url = it.optString("url", "")
 				result.title = it.optString("title", "")
@@ -34,22 +35,30 @@ class Api {
 	}
 
 	private fun JSONArray.parseContent(result: Page) {
-		for (child in this) {
-			if (child is String) result.content += child
-			if (child is JSONObject) {
-				result.content += "<${child.optString("tag", "")}"
-				child.optJSONObject("attrs")?.let {
-					for (key in it.keys()) {
-						result.content += " $key=\"${it.optString(key, "")}\""
+		try {
+			for (child in this) {
+				try {
+					if (child is String) result.content += child
+					else if (child is JSONObject) {
+						result.content += "<${child.optString("tag", "")}"
+						child.optJSONObject("attrs")?.let {
+							for (key in it.keys()) {
+								result.content += " $key=\"${it.optString(key, "")}\""
+							}
+							for (i in 0 until length()) {
+								result.content += "${it.names()}"
+							}
+						}
+						result.content += ">"
+						child.optJSONArray("children").parseContent(result)
+						result.content += "</${child.optString("tag", "")}>"
 					}
-					for (i in 0 until length()) {
-						result.content += "${it.names()}"
-					}
+				} catch (e: Exception) {
+					e.printStackTrace()
 				}
-				result.content += ">"
-				child.optJSONArray("children").parseContent(result)
-				result.content += "</${child.optString("tag", "")}>"
 			}
+		} catch (e: Exception) {
+			e.printStackTrace()
 		}
 	}
 
