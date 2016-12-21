@@ -11,10 +11,6 @@ import com.afollestad.materialdialogs.MaterialDialog
 import im.delight.android.webview.AdvancedWebView
 
 class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
-
-	private val htmlHead = "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css\"><style> * { max-width: 100%; height: auto; word-break: break-all; word-break: break-word; }</style></head><body>"
-	private val htmlEnd = "<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js\"></script></body></html>"
-
 	private val webView: AdvancedWebView? by lazy { findViewById(R.id.webView) as AdvancedWebView? }
 	private val editor: Editor? by lazy { findViewById(R.id.editor) as Editor? }
 
@@ -37,6 +33,9 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			isVerticalScrollBarEnabled = false
 			overScrollMode = View.OVER_SCROLL_NEVER
 		}
+		if (accessToken().isNullOrBlank()) Api().createAccount { accessToken ->
+			if (accessToken != null) saveAccessToken(accessToken)
+		}
 		if (intent.action == Intent.ACTION_VIEW && !intent.dataString.isNullOrBlank() && intent.dataString.contains("telegra.ph")) loadPage(intent.dataString.split("/").last())
 		else loadEditor()
 	}
@@ -51,12 +50,13 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			webView?.visibility = View.GONE
 			currentPage = null
 			// Load
-			if (path != null) Api().getPage(path, accessToken()) { page ->
-				runOnUiThread {
+			if (path != null) Api().getPage(path, accessToken()) { success, page ->
+				if (success) runOnUiThread {
 					isEdit = true
 					currentPage = page
 					editor?.setText(page?.content ?: "")
 				}
+				else showError()
 			}
 		}
 	}
@@ -70,8 +70,9 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			editor?.visibility = View.GONE
 			currentPage = null
 			// Load
-			Api().getPage(path, accessToken()) { page ->
-				showPage(page)
+			Api().getPage(path, accessToken()) { success, page ->
+				if (success) showPage(page)
+				else showError()
 			}
 		}
 	}
@@ -86,16 +87,26 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			currentPage = page
 			// Show
 			page?.let {
-				var html = htmlHead
+				var html = getString(R.string.viewer_html_head)
 				html += "<h1>${it.title}</h1>"
 				if (!it.author_name.isNullOrEmpty() && !it.author_url.isNullOrBlank()) html += "<a href=\"${it.author_url}\">${it.author_name}</a><br>"
 				else if (!it.author_name.isNullOrEmpty()) html += "${it.author_name}<br>"
 				if (it.views != 0) html += "${it.views} times viewed<br><br>"
 				if (it.content.isNullOrBlank()) html += it.description.replace("\n", "<br>") else html += it.content
-				html += htmlEnd
+				html += getString(R.string.viewer_html_end)
 				webView?.loadDataWithBaseURL(it.url, html, "text/html; charset=UTF-8", null, null)
 				currentUrl = it.url
 			}
+		}
+	}
+
+	private fun showError() {
+		runOnUiThread {
+			MaterialDialog.Builder(this)
+					.title(R.string.error)
+					.content(R.string.error_desc)
+					.positiveText(android.R.string.ok)
+					.show()
 		}
 	}
 
@@ -150,6 +161,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 		super.onPrepareOptionsMenu(menu)
 		menu?.findItem(R.id.create)?.isVisible = !editorMode
 		menu?.findItem(R.id.share)?.isVisible = !editorMode
+		menu?.findItem(R.id.try_edit)?.isVisible = !editorMode && !canEdit
 		menu?.findItem(R.id.publish)?.isVisible = editorMode
 		menu?.findItem(R.id.edit)?.isVisible = canEdit
 		return true
@@ -166,22 +178,20 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 					MaterialDialog.Builder(this)
 							.title(R.string.title_question)
 							.input(getString(R.string.title_hint), currentPage?.title ?: "", { dialog, title ->
-								if (accessToken().isNullOrBlank()) {
-									Api().createAccount { accessToken ->
-										if (accessToken != null) saveAccessToken(accessToken)
-										if (isEdit) Api().editPage(accessToken(), currentPage?.path, json, title.toString()) { page -> showPage(page) }
-										else Api().createPage(accessToken(), json, title.toString()) { page -> showPage(page) }
-									}
-								} else {
-									if (isEdit) Api().editPage(accessToken(), currentPage?.path, json, title.toString()) { page -> showPage(page) }
-									else Api().createPage(accessToken(), json, title.toString()) { page -> showPage(page) }
+								if (isEdit) Api().editPage(accessToken(), currentPage?.path, json, title.toString()) { success, page ->
+									if (success) showPage(page)
+									else showError()
+								}
+								else Api().createPage(accessToken(), json, title.toString()) { success, page ->
+									if (success) showPage(page)
+									else showError()
 								}
 							})
 							.show()
 				}
 				true
 			}
-			R.id.edit -> {
+			R.id.edit, R.id.try_edit -> {
 				loadEditor(currentPage?.path)
 				true
 			}

@@ -8,24 +8,36 @@ class Api {
 
 	private val ApiBase = "https://api.telegra.ph/"
 
-	fun getPage(id: String?, accessToken: String?, callback: (page: Page?) -> Unit) {
-		Bridge.get("${ApiBase}getPage/$id?return_content=true" + if (accessToken != null) "&access_token=$accessToken" else "").asJsonObject { response, jsonObject, bridgeException ->
-			if (jsonObject != null) callback(jsonObject.parsePage())
-			else callback(null)
+	fun getPage(path: String?, accessToken: String?, callback: (success: Boolean, page: Page?) -> Unit) {
+		Bridge.get("${ApiBase}getPage/$path?access_token=%s&return_content=true", accessToken).asString { response, s, bridgeException ->
+			if (!s.isNullOrBlank() && bridgeException == null) try {
+				callback(true, JSONObject(s).parsePage())
+			} catch (e: Exception) {
+				callback(false, null)
+			}
+			else callback(false, null)
 		}
 	}
 
-	fun createPage(accessToken: String?, content: String?, title: String?, callback: (Page?) -> Unit) {
-		Bridge.get("${ApiBase}createPage?access_token=$accessToken&title=%s&content=$content&return_content=true", title).asJsonObject { response, jsonObject, bridgeException ->
-			if (jsonObject != null) callback(jsonObject.parsePage())
-			else callback(null)
+	fun createPage(accessToken: String?, content: String?, title: String?, callback: (success: Boolean, Page?) -> Unit) {
+		Bridge.get("${ApiBase}createPage?access_token=%s&title=%s&content=%s&return_content=true", accessToken, title, content).asString { response, s, bridgeException ->
+			if (!s.isNullOrBlank() && bridgeException == null) try {
+				callback(true, JSONObject(s).parsePage())
+			} catch (e: Exception) {
+				callback(false, null)
+			}
+			else callback(false, null)
 		}
 	}
 
-	fun editPage(accessToken: String?, path: String?, content: String?, title: String?, callback: (Page?) -> Unit) {
-		Bridge.get("${ApiBase}editPage/$path?access_token=$accessToken&title=%s&content=$content&return_content=true", title).asJsonObject { response, jsonObject, bridgeException ->
-			if (jsonObject != null) callback(jsonObject.parsePage())
-			else callback(null)
+	fun editPage(accessToken: String?, path: String?, content: String?, title: String?, callback: (success: Boolean, Page?) -> Unit) {
+		Bridge.get("${ApiBase}editPage/$path?access_token=%s&title=%s&content=%s&return_content=true", accessToken, title, content).asString { response, s, bridgeException ->
+			if (!s.isNullOrBlank() && bridgeException == null) try {
+				callback(true, JSONObject(s).parsePage())
+			} catch (e: Exception) {
+				callback(false, null)
+			}
+			else callback(false, null)
 		}
 	}
 

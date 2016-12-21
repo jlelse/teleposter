@@ -14,6 +14,10 @@
 		android:title="@string/edit"
 		app:showAsAction="ifRoom"/>
 	<item
+		android:id="@+id/try_edit"
+		android:title="@string/try_edit"
+		app:showAsAction="ifRoom"/>
+	<item
 		android:id="@+id/bookmarks"
 		android:title="@string/bookmarks"
 		app:showAsAction="ifRoom"/>
