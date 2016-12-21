@@ -6,6 +6,10 @@
 		android:title="@string/create"
 		app:showAsAction="ifRoom"/>
 	<item
+		android:id="@+id/publish"
+		android:title="@string/publish"
+		app:showAsAction="ifRoom"/>
+	<item
 		android:id="@+id/bookmarks"
 		android:title="@string/bookmarks"
 		app:showAsAction="ifRoom"/>

@@ -16,14 +16,30 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 	private val htmlHead = "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css\"><style> * { max-width: 100%; height: auto; word-break: break-all; word-break: break-word; }</style></head><body>"
 	private val htmlEnd = "<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js\"></script></body></html>"
 
-	private val webView: AdvancedWebView? by lazy { findViewById(R.id.webView) as AdvancedWebView }
+	private val webView: AdvancedWebView? by lazy { findViewById(R.id.webView) as AdvancedWebView? }
+	private val editor: Editor? by lazy { findViewById(R.id.editor) as Editor? }
 
 	private var url = ""
+	private var editorMode = true
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		setContentView(R.layout.activity_main)
+		if (intent.action == Intent.ACTION_VIEW && !intent.dataString.isNullOrBlank() && intent.dataString.contains("telegra.ph")) loadPage(intent.dataString.split("/").last())
+		else loadEditor()
+	}
 
+	private fun loadEditor() {
+		editorMode = true
+		invalidateOptionsMenu()
+		// Init
+		setContentView(R.layout.main_write)
+	}
+
+	private fun loadPage(path: String) {
+		editorMode = false
+		invalidateOptionsMenu()
+		// Init
+		setContentView(R.layout.main_read)
 		webView?.apply {
 			setListener(this@MainActivity, this@MainActivity)
 			setMixedContentAllowed(true)
@@ -34,17 +50,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			isVerticalScrollBarEnabled = false
 			overScrollMode = View.OVER_SCROLL_NEVER
 		}
-
-		if (intent.action == Intent.ACTION_VIEW && !intent.dataString.isNullOrBlank() && intent.dataString.contains("telegra.ph"))
-			loadPage(intent.dataString.split("/").last())
-		else loadEditor()
-	}
-
-	private fun loadEditor() {
-		webView?.loadUrl(TELEGRAPH)
-	}
-
-	private fun loadPage(path: String) {
+		// Load
 		Api().getPage(path) { page ->
 			page?.let {
 				var html = htmlHead
@@ -104,6 +110,13 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 	override fun onCreateOptionsMenu(menu: Menu): Boolean {
 		super.onCreateOptionsMenu(menu)
 		menuInflater.inflate(R.menu.activity_main, menu)
+		return true
+	}
+
+	override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+		super.onPrepareOptionsMenu(menu)
+		menu?.findItem(R.id.create)?.isVisible = !editorMode
+		menu?.findItem(R.id.publish)?.isVisible = editorMode
 		return true
 	}
 

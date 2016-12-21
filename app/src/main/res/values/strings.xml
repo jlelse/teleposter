@@ -12,4 +12,5 @@
 	<string name="title_hint">Awesome Post #1</string>
 	<string name="delete">Delete</string>
 	<string name="delete_question">Do you really want to delete this?</string>
+	<string name="publish">Publish</string>
 </resources>
