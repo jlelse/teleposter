@@ -33,7 +33,8 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 					var html = "<h1>${it.title}</h1>"
 					if (!it.author_name.isNullOrEmpty() && !it.author_url.isNullOrBlank()) html += "<a href=\"${it.author_url}\">${it.author_name}</a><br>"
 					else if (!it.author_name.isNullOrEmpty()) html += "${it.author_name}<br>"
-					html += it.content
+					if (it.views != 0) html += "${it.views} times viewed<br><br>"
+					if (it.content.isNullOrBlank()) html += it.description.replace("\n", "<br>") else html += it.content
 					webView?.loadDataWithBaseURL(it.url, html, "text/html; charset=UTF-8", null, null)
 				}
 			}

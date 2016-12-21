@@ -35,30 +35,21 @@ class Api {
 	}
 
 	private fun JSONArray.parseContent(result: Page) {
-		try {
-			for (child in this) {
-				try {
-					if (child is String) result.content += child
-					else if (child is JSONObject) {
-						result.content += "<${child.optString("tag", "")}"
-						child.optJSONObject("attrs")?.let {
-							for (key in it.keys()) {
-								result.content += " $key=\"${it.optString(key, "")}\""
-							}
-							for (i in 0 until length()) {
-								result.content += "${it.names()}"
-							}
-						}
-						result.content += ">"
-						child.optJSONArray("children").parseContent(result)
-						result.content += "</${child.optString("tag", "")}>"
+		for (i in 0 until length()) {
+			optJSONObject(i)?.let {
+				result.content += "<${it.optString("tag", "")}"
+				it.optJSONObject("attrs")?.let {
+					for (key in it.keys()) {
+						result.content += " $key=\"${it.optString(key, "")}\""
 					}
-				} catch (e: Exception) {
-					e.printStackTrace()
 				}
+				result.content += ">"
+				it.optJSONArray("children")?.parseContent(result)
+				result.content += "</${it.optString("tag", "")}>"
 			}
-		} catch (e: Exception) {
-			e.printStackTrace()
+			if (optJSONObject(i) == null) optString(i)?.let {
+				result.content += it
+			}
 		}
 	}
 
