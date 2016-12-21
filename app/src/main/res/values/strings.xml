@@ -13,4 +13,5 @@
 	<string name="delete">Delete</string>
 	<string name="delete_question">Do you really want to delete this?</string>
 	<string name="publish">Publish</string>
+	<string name="edit">Edit</string>
 </resources>

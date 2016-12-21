@@ -9,21 +9,17 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 
 class Editor : WebView {
-	private var text = ""
-	internal var context: Context
+	private var getCallback: (json: String?) -> Unit? = {}
 
 	constructor(context: Context) : super(context) {
-		this.context = context
 		init()
 	}
 
 	constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
-		this.context = context
 		init()
 	}
 
 	constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(context, attrs, defStyle) {
-		this.context = context
 		init()
 	}
 
@@ -38,8 +34,8 @@ class Editor : WebView {
 
 	private inner class MyJavaScriptInterface {
 		@JavascriptInterface
-		fun getText(html: String) {
-			text = html
+		fun getText(json: String) {
+			getCallback(json)
 		}
 	}
 
@@ -53,19 +49,9 @@ class Editor : WebView {
 		this.loadUrl("javascript:$('#summernote').summernote('code', '" + html.replace("'", "\\'") + "');")
 	}
 
-	fun getText(): String {
-		text = "P/%TE5XpkAijBc%LjA;_-pZcbiU25E6feX5y/n6qxCTmhprLrqC3H%^hU!%q2,k'm`SHheoW^'mQ~zW93,C?~GtYk!wi/&'3KxW8"
-		this.loadUrl("javascript:window.android.getText" + "(document.getElementsByClassName('note-editable')[0].innerHTML);")
-		var i = 0
-		try {
-			while (text == "P/%TE5XpkAijBc%LjA;_-pZcbiU25E6feX5y/n6qxCTmhprLrqC3H%^hU!%q2,k'm`SHheoW^'mQ~zW93,C?~GtYk!wi/&'3KxW8" && i < 100) {
-				Thread.sleep(50)
-				i++
-			}
-		} catch (e: Exception) {
-			text = ""
-		}
-		return text
+	fun getText(callback: (json: String?) -> Unit) {
+		getCallback = callback
+		this.loadUrl("javascript:getNodeJson();")
 	}
 
 }

@@ -12,34 +12,21 @@ import im.delight.android.webview.AdvancedWebView
 
 class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 
-	private val TELEGRAPH = "http://telegra.ph/"
 	private val htmlHead = "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css\"><style> * { max-width: 100%; height: auto; word-break: break-all; word-break: break-word; }</style></head><body>"
 	private val htmlEnd = "<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js\"></script></body></html>"
 
 	private val webView: AdvancedWebView? by lazy { findViewById(R.id.webView) as AdvancedWebView? }
 	private val editor: Editor? by lazy { findViewById(R.id.editor) as Editor? }
 
-	private var url = ""
+	private var currentUrl = ""
+	private var currentPage: Page? = null
 	private var editorMode = true
+	private var canEdit = false
+	private var isEdit = false
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		if (intent.action == Intent.ACTION_VIEW && !intent.dataString.isNullOrBlank() && intent.dataString.contains("telegra.ph")) loadPage(intent.dataString.split("/").last())
-		else loadEditor()
-	}
-
-	private fun loadEditor() {
-		editorMode = true
-		invalidateOptionsMenu()
-		// Init
-		setContentView(R.layout.main_write)
-	}
-
-	private fun loadPage(path: String) {
-		editorMode = false
-		invalidateOptionsMenu()
-		// Init
-		setContentView(R.layout.main_read)
+		setContentView(R.layout.activity_main)
 		webView?.apply {
 			setListener(this@MainActivity, this@MainActivity)
 			setMixedContentAllowed(true)
@@ -50,8 +37,54 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			isVerticalScrollBarEnabled = false
 			overScrollMode = View.OVER_SCROLL_NEVER
 		}
-		// Load
-		Api().getPage(path) { page ->
+		if (intent.action == Intent.ACTION_VIEW && !intent.dataString.isNullOrBlank() && intent.dataString.contains("telegra.ph")) loadPage(intent.dataString.split("/").last())
+		else loadEditor()
+	}
+
+	private fun loadEditor(path: String? = null) {
+		runOnUiThread {
+			editorMode = true
+			canEdit = false
+			isEdit = false
+			invalidateOptionsMenu()
+			editor?.visibility = View.VISIBLE
+			webView?.visibility = View.GONE
+			currentPage = null
+			// Load
+			if (path != null) Api().getPage(path, accessToken()) { page ->
+				runOnUiThread {
+					isEdit = true
+					currentPage = page
+					editor?.setText(page?.content ?: "")
+				}
+			}
+		}
+	}
+
+	private fun loadPage(path: String) {
+		runOnUiThread {
+			editorMode = false
+			canEdit = false
+			invalidateOptionsMenu()
+			webView?.visibility = View.VISIBLE
+			editor?.visibility = View.GONE
+			currentPage = null
+			// Load
+			Api().getPage(path, accessToken()) { page ->
+				showPage(page)
+			}
+		}
+	}
+
+	private fun showPage(page: Page?) {
+		runOnUiThread {
+			editorMode = false
+			canEdit = page?.can_edit ?: false
+			invalidateOptionsMenu()
+			webView?.visibility = View.VISIBLE
+			editor?.visibility = View.GONE
+			currentPage = page
+			// Show
 			page?.let {
 				var html = htmlHead
 				html += "<h1>${it.title}</h1>"
@@ -61,7 +94,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 				if (it.content.isNullOrBlank()) html += it.description.replace("\n", "<br>") else html += it.content
 				html += htmlEnd
 				webView?.loadDataWithBaseURL(it.url, html, "text/html; charset=UTF-8", null, null)
-				url = it.url
+				currentUrl = it.url
 			}
 		}
 	}
@@ -116,7 +149,9 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 	override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
 		super.onPrepareOptionsMenu(menu)
 		menu?.findItem(R.id.create)?.isVisible = !editorMode
+		menu?.findItem(R.id.share)?.isVisible = !editorMode
 		menu?.findItem(R.id.publish)?.isVisible = editorMode
+		menu?.findItem(R.id.edit)?.isVisible = canEdit
 		return true
 	}
 
@@ -124,6 +159,30 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 		return when (item.itemId) {
 			R.id.create -> {
 				loadEditor()
+				true
+			}
+			R.id.publish -> {
+				editor?.getText { json ->
+					MaterialDialog.Builder(this)
+							.title(R.string.title_question)
+							.input(getString(R.string.title_hint), currentPage?.title ?: "", { dialog, title ->
+								if (accessToken().isNullOrBlank()) {
+									Api().createAccount { accessToken ->
+										if (accessToken != null) saveAccessToken(accessToken)
+										if (isEdit) Api().editPage(accessToken(), currentPage?.path, json, title.toString()) { page -> showPage(page) }
+										else Api().createPage(accessToken(), json, title.toString()) { page -> showPage(page) }
+									}
+								} else {
+									if (isEdit) Api().editPage(accessToken(), currentPage?.path, json, title.toString()) { page -> showPage(page) }
+									else Api().createPage(accessToken(), json, title.toString()) { page -> showPage(page) }
+								}
+							})
+							.show()
+				}
+				true
+			}
+			R.id.edit -> {
+				loadEditor(currentPage?.path)
 				true
 			}
 			R.id.bookmarks -> {
@@ -152,7 +211,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 				MaterialDialog.Builder(this)
 						.title(R.string.title_question)
 						.input(getString(R.string.title_hint), "", { dialog, input ->
-							addBookmark("${(if (webView?.url != "about:blank") webView?.url ?: url else url).split("/").last()}xxx;xxx$input")
+							addBookmark("${(if (webView?.url != "about:blank") webView?.url ?: currentUrl else currentUrl).split("/").last()}xxx;xxx$input")
 						})
 						.show()
 				true
@@ -162,7 +221,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 				shareIntent.action = Intent.ACTION_SEND
 				shareIntent.type = "text/plain"
 				shareIntent.putExtra(Intent.EXTRA_TITLE, webView?.title)
-				shareIntent.putExtra(Intent.EXTRA_TEXT, if (webView?.url != "about:blank") webView?.url ?: url else url)
+				shareIntent.putExtra(Intent.EXTRA_TEXT, currentUrl)
 				startActivity(Intent.createChooser(shareIntent, getString(R.string.share)))
 				true
 			}

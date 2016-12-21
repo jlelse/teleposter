@@ -8,9 +8,30 @@ class Api {
 
 	private val ApiBase = "https://api.telegra.ph/"
 
-	fun getPage(id: String?, callback: (page: Page?) -> Unit) {
-		Bridge.get("${ApiBase}getPage/$id?return_content=true").asJsonObject { response, jsonObject, bridgeException ->
+	fun getPage(id: String?, accessToken: String?, callback: (page: Page?) -> Unit) {
+		Bridge.get("${ApiBase}getPage/$id?return_content=true" + if (accessToken != null) "&access_token=$accessToken" else "").asJsonObject { response, jsonObject, bridgeException ->
 			if (jsonObject != null) callback(jsonObject.parsePage())
+			else callback(null)
+		}
+	}
+
+	fun createPage(accessToken: String?, content: String?, title: String?, callback: (Page?) -> Unit) {
+		Bridge.get("${ApiBase}createPage?access_token=$accessToken&title=%s&content=$content&return_content=true", title).asJsonObject { response, jsonObject, bridgeException ->
+			if (jsonObject != null) callback(jsonObject.parsePage())
+			else callback(null)
+		}
+	}
+
+	fun editPage(accessToken: String?, path: String?, content: String?, title: String?, callback: (Page?) -> Unit) {
+		Bridge.get("${ApiBase}editPage/$path?access_token=$accessToken&title=%s&content=$content&return_content=true", title).asJsonObject { response, jsonObject, bridgeException ->
+			if (jsonObject != null) callback(jsonObject.parsePage())
+			else callback(null)
+		}
+	}
+
+	fun createAccount(callback: (accessToken: String?) -> Unit) {
+		Bridge.get("${ApiBase}createAccount?short_name=teleposter").asJsonObject { response, jsonObject, bridgeException ->
+			if (jsonObject != null) callback(jsonObject.optJSONObject("result")?.optString("access_token"))
 			else callback(null)
 		}
 	}

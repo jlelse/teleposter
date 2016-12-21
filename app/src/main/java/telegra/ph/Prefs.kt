@@ -14,3 +14,9 @@ fun Context.addBookmark(entry: String) {
 fun Context.deleteBookmark(path: String) {
 	PreferenceManager.getDefaultSharedPreferences(this).edit().putString("bookmarks", bookmarks().filter { !it.contains(path) }.joinToString(separator = "+++;+++")).apply()
 }
+
+fun Context.accessToken(): String? = PreferenceManager.getDefaultSharedPreferences(this).getString("accessToken", null)
+
+fun Context.saveAccessToken(token: String) {
+	PreferenceManager.getDefaultSharedPreferences(this).edit().putString("accessToken", token).apply()
+}
