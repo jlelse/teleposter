@@ -3,8 +3,7 @@
 	<string name="share">Share</string>
 	<string name="help">Help</string>
 	<string name="help_text">
-		<![CDATA[<h3>How to use text formatting?</h3>You can use formatting like <b>bold</b>, <i>italics</i> and so on at least on Lollipop and above by double tapping the text.<h3>The app only shows strange things!</h3>It\'s not verified, that the app will work on devices with KitKat or lower. In Lollipop Google introduced a Chrome based and updatable WebView with more features and fixes. I\'m sorry! But in December \'16 Telegram will publish docs for the Telegraph API, so I\'ll be able to create a native app instead of a wrapper. Be patient!]]>
-	</string>
+		<![CDATA[<h3>Why can\'t I add images?</h3>Unfortunately I wasn\'t able to add the feature yet.<h3>Why can\'t I select headings?</h3>Same reasons as above, but you can do it manually via the code editor.<h3>Why can\'t I see all my published posts?</h3>That\'s coming soon!<h3>Why can\'t I login with my Telegram account?</h3>That\'s not possible!<h3>Why can\'t I add my name to the post?</h3>That\'s coming soon!<h3>Used libraries</h3><a href=\"https://github.com/afollestad/material-dialogs\">Material Dialogs</a>, <a href=\"https://github.com/afollestad/bridge\">Bridge</a>, <a href=\"https://github.com/delight-im/Android-AdvancedWebView\">AdvancedWebView</a><h3>About</h3>This app is made by <a href="https://jlelse.eu">Jan-Lukas Else</a> and it\'s code is published on <a href="https://github.com/jlelse/teleposter">Github</a>.]]></string>
 	<string name="bookmarks">Bookmarks</string>
 	<string name="bookmark_this">Bookmark this</string>
 	<string name="create">Create</string>

@@ -239,6 +239,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 				MaterialDialog.Builder(this)
 						.title(R.string.help)
 						.content(R.string.help_text)
+						.positiveText(android.R.string.ok)
 						.show()
 				true
 			}
