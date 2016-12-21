@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto">
+	  xmlns:app="http://schemas.android.com/apk/res-auto">
 	<item
-			android:id="@+id/share"
-			android:title="@string/share"
-			app:showAsAction="ifRoom"/>
+		android:id="@+id/history"
+		android:title="@string/history"
+		app:showAsAction="ifRoom"/>
 	<item
-			android:id="@+id/help"
-			android:title="@string/help"
-			app:showAsAction="ifRoom"/>
+		android:id="@+id/share"
+		android:title="@string/share"
+		app:showAsAction="ifRoom"/>
+	<item
+		android:id="@+id/help"
+		android:title="@string/help"
+		app:showAsAction="ifRoom"/>
 </menu>
