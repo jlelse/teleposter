@@ -35,11 +35,13 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			overScrollMode = View.OVER_SCROLL_NEVER
 		}
 
-		if (intent.action == Intent.ACTION_VIEW && !intent.dataString.isNullOrBlank() && intent.dataString.contains("telegra.ph")) {
+		if (intent.action == Intent.ACTION_VIEW && !intent.dataString.isNullOrBlank() && intent.dataString.contains("telegra.ph"))
 			loadPage(intent.dataString.split("/").last())
-		} else {
-			webView?.loadUrl(TELEGRAPH)
-		}
+		else loadEditor()
+	}
+
+	private fun loadEditor() {
+		webView?.loadUrl(TELEGRAPH)
 	}
 
 	private fun loadPage(path: String) {
@@ -54,7 +56,6 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 				html += htmlEnd
 				webView?.loadDataWithBaseURL(it.url, html, "text/html; charset=UTF-8", null, null)
 				url = it.url
-				addToHistory("${it.path}xxx;xxx${it.title}")
 			}
 		}
 	}
@@ -108,13 +109,38 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 
 	override fun onOptionsItemSelected(item: MenuItem): Boolean {
 		return when (item.itemId) {
-			R.id.history -> {
+			R.id.create -> {
+				loadEditor()
+				true
+			}
+			R.id.bookmarks -> {
 				MaterialDialog.Builder(this)
-						.title(R.string.history)
-						.items(getHistory().reversed().map { it.split("xxx;xxx")[1] })
+						.title(R.string.bookmarks)
+						.items(bookmarks().reversed().map { it.split("xxx;xxx")[1] })
 						.itemsCallback { materialDialog, view, i, charSequence ->
-							loadPage(getHistory().reversed().map { it.split("xxx;xxx")[0] }[i])
+							loadPage(bookmarks().reversed().map { it.split("xxx;xxx")[0] }[i])
 						}
+						.itemsLongCallback { materialDialog, view, i, charSequence ->
+							MaterialDialog.Builder(this)
+									.title(R.string.delete)
+									.content(R.string.delete_question)
+									.positiveText(android.R.string.yes)
+									.negativeText(android.R.string.no)
+									.onPositive { materialDialog, dialogAction ->
+										deleteBookmark(bookmarks().reversed().map { it.split("xxx;xxx")[0] }[i])
+									}
+									.show()
+							true
+						}
+						.show()
+				true
+			}
+			R.id.bookmark -> {
+				MaterialDialog.Builder(this)
+						.title(R.string.title_question)
+						.input(getString(R.string.title_hint), "", { dialog, input ->
+							addBookmark("${(if (webView?.url != "about:blank") webView?.url ?: url else url).split("/").last()}xxx;xxx$input")
+						})
 						.show()
 				true
 			}
