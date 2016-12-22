@@ -1,10 +1,10 @@
 # Teleposter for Telegra.ph BETA
 
-Disclaimer: This wrapper is NOT an official client and do not attempt to represent Telegram or Telegra.ph in any way.
+Disclaimer: This wrapper is NOT an official wrapper and do not attempt to represent Telegram or Telegra.ph in any way.
 
-This app is a completely independent client made for Telegra.ph, a new and simple publishing platform, made for easy sharing of articles and other stuff. With this app it's very easy to create and share these posts to any app.
+This app is a completely independent wrapper made for Telegra.ph, a new and simple publishing platform, made for easy sharing of articles and other stuff. With this app it's very easy to create and share these posts to any app.
 
-For more information about Telegra.ph visit https://telegram.org/blog/instant-view#telegraph
+For more information about Telegra.ph visit https://telegram.org/blog/instant-view
 
 Please take care, that this app might be unstable due to it's early development state!
 
