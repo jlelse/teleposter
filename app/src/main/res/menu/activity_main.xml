@@ -18,12 +18,16 @@
 		android:title="@string/try_edit"
 		app:showAsAction="ifRoom"/>
 	<item
+		android:id="@+id/bookmark"
+		android:title="@string/bookmark_this"
+		app:showAsAction="ifRoom"/>
+	<item
 		android:id="@+id/bookmarks"
 		android:title="@string/bookmarks"
 		app:showAsAction="ifRoom"/>
 	<item
-		android:id="@+id/bookmark"
-		android:title="@string/bookmark_this"
+		android:id="@+id/published"
+		android:title="@string/published"
 		app:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/share"

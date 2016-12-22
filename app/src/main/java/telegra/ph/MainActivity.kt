@@ -198,6 +198,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			R.id.bookmarks -> {
 				MaterialDialog.Builder(this)
 						.title(R.string.bookmarks)
+						.positiveText(android.R.string.ok)
 						.items(bookmarks().reversed().map { it.split("xxx;xxx")[1] })
 						.itemsCallback { materialDialog, view, i, charSequence ->
 							loadPage(bookmarks().reversed().map { it.split("xxx;xxx")[0] }[i])
@@ -215,6 +216,22 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 							true
 						}
 						.show()
+				true
+			}
+			R.id.published -> {
+				Api().getPageList(accessToken()) { success, result ->
+					if (!success || result == null || result.isEmpty()) showError()
+					else {
+						MaterialDialog.Builder(this)
+								.title(R.string.published)
+								.positiveText(android.R.string.ok)
+								.items(result.map(Page::title))
+								.itemsCallback { materialDialog, view, i, charSequence ->
+									loadPage(result.map(Page::path)[i])
+								}
+								.show()
+					}
+				}
 				true
 			}
 			R.id.bookmark -> {
