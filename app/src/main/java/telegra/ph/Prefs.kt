@@ -20,3 +20,9 @@ fun Context.accessToken(): String? = PreferenceManager.getDefaultSharedPreferenc
 fun Context.saveAccessToken(token: String) {
 	PreferenceManager.getDefaultSharedPreferences(this).edit().putString("accessToken", token).apply()
 }
+
+fun Context.authorName(): String? = PreferenceManager.getDefaultSharedPreferences(this).getString("authorName", null)
+
+fun Context.saveAuthorName(name: String) {
+	PreferenceManager.getDefaultSharedPreferences(this).edit().putString("authorName", name).apply()
+}

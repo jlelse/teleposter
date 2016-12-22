@@ -85,6 +85,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			webView?.visibility = View.VISIBLE
 			editor?.visibility = View.GONE
 			currentPage = page
+			webView?.clearHistory()
 			// Show
 			page?.let {
 				var html = getString(R.string.viewer_html_head)
@@ -178,14 +179,19 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 					MaterialDialog.Builder(this)
 							.title(R.string.title_question)
 							.input(getString(R.string.title_hint), currentPage?.title ?: "", { dialog, title ->
-								if (isEdit) Api().editPage(accessToken(), currentPage?.path, json, title.toString()) { success, page ->
-									if (success) showPage(page)
-									else showError()
-								}
-								else Api().createPage(accessToken(), json, title.toString()) { success, page ->
-									if (success) showPage(page)
-									else showError()
-								}
+								MaterialDialog.Builder(this)
+										.title(R.string.name_question)
+										.input(getString(R.string.name_hint), if (isEdit) currentPage?.author_name ?: authorName() ?: "" else authorName() ?: "", { dialog, name ->
+											if (isEdit) Api().editPage(accessToken(), currentPage?.path, json, title.toString(), name.toString()) { success, page ->
+												if (success) showPage(page)
+												else showError()
+											}
+											else Api().createPage(accessToken(), json, title.toString(), name.toString()) { success, page ->
+												if (success) showPage(page)
+												else showError()
+											}
+										})
+										.show()
 							})
 							.show()
 				}

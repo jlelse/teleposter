@@ -19,8 +19,8 @@ class Api {
 		}
 	}
 
-	fun createPage(accessToken: String?, content: String?, title: String?, callback: (success: Boolean, Page?) -> Unit) {
-		Bridge.get("${ApiBase}createPage?access_token=%s&title=%s&content=%s&return_content=true", accessToken, title, content).asString { response, s, bridgeException ->
+	fun createPage(accessToken: String?, content: String?, title: String?, name: String?, callback: (success: Boolean, Page?) -> Unit) {
+		Bridge.get("${ApiBase}createPage?access_token=%s&title=%s&author_name=%s&content=%s&return_content=true", accessToken, title, name, content).asString { response, s, bridgeException ->
 			if (!s.isNullOrBlank() && bridgeException == null) try {
 				callback(true, JSONObject(s).parsePageResponse())
 			} catch (e: Exception) {
@@ -30,8 +30,8 @@ class Api {
 		}
 	}
 
-	fun editPage(accessToken: String?, path: String?, content: String?, title: String?, callback: (success: Boolean, Page?) -> Unit) {
-		Bridge.get("${ApiBase}editPage/$path?access_token=%s&title=%s&content=%s&return_content=true", accessToken, title, content).asString { response, s, bridgeException ->
+	fun editPage(accessToken: String?, path: String?, content: String?, title: String?, name: String?, callback: (success: Boolean, Page?) -> Unit) {
+		Bridge.get("${ApiBase}editPage/$path?access_token=%s&title=%s&author_name=%s&content=%s&return_content=true", accessToken, title, name, content).asString { response, s, bridgeException ->
 			if (!s.isNullOrBlank() && bridgeException == null) try {
 				callback(true, JSONObject(s).parsePageResponse())
 			} catch (e: Exception) {
