@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 		if (accessToken().isNullOrBlank()) Api().createAccount { accessToken ->
 			if (accessToken != null) saveAccessToken(accessToken)
 		}
-		if (intent.action == Intent.ACTION_VIEW && !intent.dataString.isNullOrBlank() && intent.dataString.contains("telegra.ph")) loadPage(intent.dataString.split("/").last())
+		if (intent.action == Intent.ACTION_VIEW && intent.dataString.contains("telegra.ph")) loadPage(intent.dataString.split("/").last())
 		else loadEditor()
 	}
 
@@ -182,6 +182,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 								MaterialDialog.Builder(this)
 										.title(R.string.name_question)
 										.input(getString(R.string.name_hint), if (isEdit) currentPage?.author_name ?: authorName() ?: "" else authorName() ?: "", { dialog, name ->
+											if (!isEdit) saveAuthorName(name.toString())
 											if (isEdit) Api().editPage(accessToken(), currentPage?.path, json, title.toString(), name.toString()) { success, page ->
 												if (success) showPage(page)
 												else showError()
@@ -244,7 +245,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 				MaterialDialog.Builder(this)
 						.title(R.string.title_question)
 						.input(getString(R.string.title_hint), "", { dialog, input ->
-							addBookmark("${(if (webView?.url != "about:blank") webView?.url ?: currentUrl else currentUrl).split("/").last()}xxx;xxx$input")
+							addBookmark("${currentUrl.split("/").last()}xxx;xxx$input")
 						})
 						.show()
 				true
