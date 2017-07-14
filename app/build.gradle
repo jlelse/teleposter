@@ -2,14 +2,14 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 26
+    buildToolsVersion "26.0.0"
     defaultConfig {
         applicationId "telegra.ph"
         minSdkVersion 15
-        targetSdkVersion 25
-        versionCode 7
-        versionName "1.1.1"
+        targetSdkVersion 26
+        versionCode 8
+        versionName "1.2.0"
         resConfigs "en"
     }
     buildTypes {
@@ -27,11 +27,14 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:25.1.0'
-    compile 'com.android.support:recyclerview-v7:25.1.0'
-    compile 'com.android.support:support-v13:25.1.0'
+    compile 'com.android.support:appcompat-v7:25.4.0'
+    compile 'com.android.support:recyclerview-v7:25.4.0'
+    compile 'com.android.support:support-v13:25.4.0'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile 'com.github.delight-im:Android-AdvancedWebView:v3.0.0'
-    compile 'com.afollestad.material-dialogs:core:0.9.1.0'
-    compile 'com.afollestad:bridge:3.3.0'
+    compile 'com.afollestad.material-dialogs:core:0.9.4.5'
+    compile('com.afollestad:bridge:5.1.2') {
+        exclude group: 'org.json', module: 'json'
+        exclude group: 'com.intellij', module: 'annotations'
+    }
 }
