@@ -1,7 +1,7 @@
 package telegra.ph
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.support.annotation.Keep
 import android.util.AttributeSet
 import android.webkit.JavascriptInterface
 import android.webkit.WebSettings
@@ -23,13 +23,14 @@ class Editor : WebView {
 		init()
 	}
 
+	@SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
 	private fun init() {
 		this.settings.javaScriptEnabled = true
 		this.settings.cacheMode = WebSettings.LOAD_NO_CACHE
 		this.addJavascriptInterface(MyJavaScriptInterface(), "android")
 		this.settings.loadWithOverviewMode = true
 		this.settings.useWideViewPort = true
-		this.loadUrl("file:///android_asset/editor.html")
+		this.loadDataWithBaseURL("http://telegra.ph", context.assets.open("editor.html").bufferedReader().readText(), "text/html", "utf-8", null)
 	}
 
 	private inner class MyJavaScriptInterface {
@@ -40,13 +41,17 @@ class Editor : WebView {
 	}
 
 	fun setText(html: String) {
-		setWebViewClient(object : WebViewClient() {
+		webViewClient = object : WebViewClient() {
 			override fun onPageFinished(view: WebView, url: String) {
 				setText(html)
 			}
-		})
+		}
 		this.loadUrl("javascript:$('#summernote').summernote('reset');")
 		this.loadUrl("javascript:$('#summernote').summernote('code', '" + html.replace("'", "\\'") + "');")
+	}
+
+	fun addImage(url: String) {
+		this.loadUrl("javascript:$('#summernote').summernote('insertImage', '$url');")
 	}
 
 	fun getText(callback: (json: String?) -> Unit) {

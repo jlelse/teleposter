@@ -8,9 +8,13 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.folderselector.FileChooserDialog
 import im.delight.android.webview.AdvancedWebView
+import pub.devrel.easypermissions.AfterPermissionGranted
+import pub.devrel.easypermissions.EasyPermissions
+import java.io.File
 
-class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
+class MainActivity : AppCompatActivity(), AdvancedWebView.Listener, FileChooserDialog.FileCallback {
 	private val webView: AdvancedWebView? by lazy { findViewById(R.id.webView) as AdvancedWebView? }
 	private val editor: Editor? by lazy { findViewById(R.id.editor) as Editor? }
 
@@ -33,7 +37,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			isVerticalScrollBarEnabled = false
 			overScrollMode = View.OVER_SCROLL_NEVER
 		}
-		if (accessToken().isNullOrBlank()) Api().createAccount { accessToken ->
+		if (accessToken().isNullOrBlank()) Api.createAccount { accessToken ->
 			if (accessToken != null) saveAccessToken(accessToken)
 		}
 		if (intent.action == Intent.ACTION_VIEW && intent.dataString.contains("telegra.ph")) loadPage(intent.dataString.split("/").last())
@@ -50,7 +54,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			webView?.visibility = View.GONE
 			currentPage = null
 			// Load
-			if (path != null) Api().getPage(path, accessToken()) { success, page ->
+			if (path != null) Api.getPage(path, accessToken()) { success, page ->
 				if (success) runOnUiThread {
 					isEdit = true
 					currentPage = page
@@ -70,7 +74,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			editor?.visibility = View.GONE
 			currentPage = null
 			// Load
-			Api().getPage(path, accessToken()) { success, page ->
+			Api.getPage(path, accessToken()) { success, page ->
 				if (success) showPage(page)
 				else showError()
 			}
@@ -111,6 +115,17 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 		}
 	}
 
+	@AfterPermissionGranted(100)
+	private fun uploadImage() {
+		if (EasyPermissions.hasPermissions(this, "android.permission.READ_EXTERNAL_STORAGE")) {
+			FileChooserDialog.Builder(this)
+					.mimeType("image/*")
+					.show()
+		} else {
+			EasyPermissions.requestPermissions(this, "", 100, "android.permission.READ_EXTERNAL_STORAGE")
+		}
+	}
+
 	override fun onPageFinished(url: String?) {
 	}
 
@@ -125,6 +140,15 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 
 	override fun onExternalPageRequest(url: String?) {
 		AdvancedWebView.Browsers.openUrl(this, url)
+	}
+
+	override fun onFileSelection(p0: FileChooserDialog, file: File) {
+		Api.uploadImage(file) { src ->
+			if (src != null) editor?.addImage(src)
+		}
+	}
+
+	override fun onFileChooserDismissed(p0: FileChooserDialog) {
 	}
 
 	override fun onResume() {
@@ -163,6 +187,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 		menu?.findItem(R.id.create)?.isVisible = !editorMode
 		menu?.findItem(R.id.share)?.isVisible = !editorMode
 		menu?.findItem(R.id.try_edit)?.isVisible = !editorMode && !canEdit
+		menu?.findItem(R.id.image)?.isVisible = editorMode
 		menu?.findItem(R.id.publish)?.isVisible = editorMode
 		menu?.findItem(R.id.edit)?.isVisible = canEdit
 		return true
@@ -170,6 +195,10 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 
 	override fun onOptionsItemSelected(item: MenuItem): Boolean {
 		return when (item.itemId) {
+			R.id.image -> {
+				uploadImage()
+				true
+			}
 			R.id.create -> {
 				loadEditor()
 				true
@@ -178,16 +207,16 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 				editor?.getText { json ->
 					MaterialDialog.Builder(this)
 							.title(R.string.title_question)
-							.input(getString(R.string.title_hint), currentPage?.title ?: "", { dialog, title ->
+							.input(getString(R.string.title_hint), currentPage?.title ?: "", { _, title ->
 								MaterialDialog.Builder(this)
 										.title(R.string.name_question)
-										.input(getString(R.string.name_hint), if (isEdit) currentPage?.author_name ?: authorName() ?: "" else authorName() ?: "", { dialog, name ->
+										.input(getString(R.string.name_hint), if (isEdit) currentPage?.author_name ?: authorName() ?: "" else authorName() ?: "", { _, name ->
 											if (!isEdit) saveAuthorName(name.toString())
-											if (isEdit) Api().editPage(accessToken(), currentPage?.path, json, title.toString(), name.toString()) { success, page ->
+											if (isEdit) Api.editPage(accessToken(), currentPage?.path, json, title.toString(), name.toString()) { success, page ->
 												if (success) showPage(page)
 												else showError()
 											}
-											else Api().createPage(accessToken(), json, title.toString(), name.toString()) { success, page ->
+											else Api.createPage(accessToken(), json, title.toString(), name.toString()) { success, page ->
 												if (success) showPage(page)
 												else showError()
 											}
@@ -207,16 +236,16 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 						.title(R.string.bookmarks)
 						.positiveText(android.R.string.ok)
 						.items(bookmarks().reversed().map { it.split("xxx;xxx")[1] })
-						.itemsCallback { materialDialog, view, i, charSequence ->
+						.itemsCallback { _, _, i, _ ->
 							loadPage(bookmarks().reversed().map { it.split("xxx;xxx")[0] }[i])
 						}
-						.itemsLongCallback { materialDialog, view, i, charSequence ->
+						.itemsLongCallback { _, _, i, _ ->
 							MaterialDialog.Builder(this)
 									.title(R.string.delete)
 									.content(R.string.delete_question)
 									.positiveText(android.R.string.yes)
 									.negativeText(android.R.string.no)
-									.onPositive { materialDialog, dialogAction ->
+									.onPositive { _, _ ->
 										deleteBookmark(bookmarks().reversed().map { it.split("xxx;xxx")[0] }[i])
 									}
 									.show()
@@ -226,14 +255,14 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 				true
 			}
 			R.id.published -> {
-				Api().getPageList(accessToken()) { success, result ->
+				Api.getPageList(accessToken()) { success, result ->
 					if (!success || result == null || result.isEmpty()) showError()
 					else {
 						MaterialDialog.Builder(this)
 								.title(R.string.published)
 								.positiveText(android.R.string.ok)
 								.items(result.map(Page::title))
-								.itemsCallback { materialDialog, view, i, charSequence ->
+								.itemsCallback { _, _, i, _ ->
 									loadPage(result.map(Page::path)[i])
 								}
 								.show()
@@ -244,7 +273,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			R.id.bookmark -> {
 				MaterialDialog.Builder(this)
 						.title(R.string.title_question)
-						.input(getString(R.string.title_hint), "", { dialog, input ->
+						.input(getString(R.string.title_hint), "", { _, input ->
 							addBookmark("${currentUrl.split("/").last()}xxx;xxx$input")
 						})
 						.show()
@@ -271,4 +300,8 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 		}
 	}
 
+	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+		EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+	}
 }

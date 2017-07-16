@@ -1,17 +1,20 @@
 package telegra.ph
 
 import com.afollestad.bridge.Bridge
+import com.afollestad.bridge.MultipartForm
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.File
 
-class Api {
+
+object Api {
 
 	private val ApiBase = "https://api.telegra.ph/"
 
 	fun getPage(path: String?, accessToken: String?, callback: (success: Boolean, page: Page?) -> Unit) {
-		Bridge.get("${ApiBase}getPage/$path?access_token=%s&return_content=true", accessToken).asString { response, s, bridgeException ->
-			if (!s.isNullOrBlank() && bridgeException == null) try {
-				callback(true, JSONObject(s).parsePageResponse())
+		Bridge.get("${ApiBase}getPage/$path?access_token=%s&return_content=true", accessToken).asJsonObject { _, jsonObject, exception ->
+			if (jsonObject != null && exception == null) try {
+				callback(true, jsonObject.parsePageResponse())
 			} catch (e: Exception) {
 				callback(false, null)
 			}
@@ -20,9 +23,9 @@ class Api {
 	}
 
 	fun createPage(accessToken: String?, content: String?, title: String?, name: String?, callback: (success: Boolean, Page?) -> Unit) {
-		Bridge.get("${ApiBase}createPage?access_token=%s&title=%s&author_name=%s&content=%s&return_content=true", accessToken, title, name, content).asString { response, s, bridgeException ->
-			if (!s.isNullOrBlank() && bridgeException == null) try {
-				callback(true, JSONObject(s).parsePageResponse())
+		Bridge.get("${ApiBase}createPage?access_token=%s&title=%s&author_name=%s&content=%s&return_content=true", accessToken, title, name, content).asJsonObject { _, jsonObject, exception ->
+			if (jsonObject != null && exception == null) try {
+				callback(true, jsonObject.parsePageResponse())
 			} catch (e: Exception) {
 				callback(false, null)
 			}
@@ -31,9 +34,9 @@ class Api {
 	}
 
 	fun editPage(accessToken: String?, path: String?, content: String?, title: String?, name: String?, callback: (success: Boolean, Page?) -> Unit) {
-		Bridge.get("${ApiBase}editPage/$path?access_token=%s&title=%s&author_name=%s&content=%s&return_content=true", accessToken, title, name, content).asString { response, s, bridgeException ->
-			if (!s.isNullOrBlank() && bridgeException == null) try {
-				callback(true, JSONObject(s).parsePageResponse())
+		Bridge.get("${ApiBase}editPage/$path?access_token=%s&title=%s&author_name=%s&content=%s&return_content=true", accessToken, title, name, content).asJsonObject { _, jsonObject, exception ->
+			if (jsonObject != null && exception == null) try {
+				callback(true, jsonObject.parsePageResponse())
 			} catch (e: Exception) {
 				callback(false, null)
 			}
@@ -42,9 +45,9 @@ class Api {
 	}
 
 	fun createAccount(callback: (accessToken: String?) -> Unit) {
-		Bridge.get("${ApiBase}createAccount?short_name=teleposter").asString { response, s, bridgeException ->
-			if (!s.isNullOrBlank() && bridgeException == null) try {
-				callback(JSONObject(s).optJSONObject("result")?.optString("access_token"))
+		Bridge.get("${ApiBase}createAccount?short_name=teleposter").asJsonObject { _, jsonObject, exception ->
+			if (jsonObject != null && exception == null) try {
+				callback(jsonObject.optJSONObject("result")?.optString("access_token"))
 			} catch (e: Exception) {
 				callback(null)
 			}
@@ -53,9 +56,9 @@ class Api {
 	}
 
 	fun getPageList(accessToken: String?, offset: Int = 0, callback: (success: Boolean, MutableList<Page>?) -> Unit) {
-		Bridge.get("${ApiBase}getPageList?access_token=%s&limit=200&offset=$offset", accessToken).asString { response, s, bridgeException ->
-			if (!s.isNullOrBlank() && bridgeException == null) try {
-				JSONObject(s).optJSONObject("result")?.let {
+		Bridge.get("${ApiBase}getPageList?access_token=%s&limit=200&offset=$offset", accessToken).asJsonObject { _, jsonObject, exception ->
+			if (jsonObject != null && exception == null) try {
+				jsonObject.optJSONObject("result")?.let {
 					val totalCount = it.optInt("total_count")
 					var currentCount = 200 + offset
 					val result = mutableListOf<Page>()
@@ -120,6 +123,15 @@ class Api {
 				result.content += it
 			}
 		}
+	}
+
+	fun uploadImage(file: File, callback: (url: String?) -> Unit) {
+		Bridge.post("http://telegra.ph/upload")
+				.body(MultipartForm().add("FileUpload", file))
+				.asJsonArray { _, jsonArray, _ ->
+					val src = jsonArray?.optJSONObject(0)?.optString("src", null)
+					callback(src)
+				}
 	}
 
 }
