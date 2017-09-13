@@ -92,7 +92,7 @@ object Api {
 	}
 
 	private fun JSONObject.parsePage(): Page? {
-		val result: Page = Page()
+		val result = Page()
 		result.path = optString("path", "")
 		result.url = optString("url", "")
 		result.title = optString("title", "")
