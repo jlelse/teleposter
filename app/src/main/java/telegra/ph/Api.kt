@@ -12,77 +12,78 @@ object Api {
 	private val ApiBase = "https://api.telegra.ph/"
 
 	fun getPage(path: String?, accessToken: String?, callback: (success: Boolean, page: Page?) -> Unit) {
-		Bridge.get("${ApiBase}getPage/$path?access_token=%s&return_content=true", accessToken).asJsonObject { _, jsonObject, exception ->
-			if (jsonObject != null && exception == null) try {
-				callback(true, jsonObject.parsePageResponse())
-			} catch (e: Exception) {
-				callback(false, null)
+		try {
+			Bridge.get("${ApiBase}getPage/$path?access_token=%s&return_content=true", accessToken).asString { response, _, _ ->
+				if (response?.isSuccess == true) callback(true, response.asAsonObject()?.toStockJson()?.parsePageResponse())
+				else callback(false, null)
 			}
-			else callback(false, null)
+		} catch (e: Exception) {
+			callback(false, null)
 		}
 	}
 
 	fun createPage(accessToken: String?, content: String?, title: String?, name: String?, callback: (success: Boolean, Page?) -> Unit) {
-		Bridge.get("${ApiBase}createPage?access_token=%s&title=%s&author_name=%s&content=%s&return_content=true", accessToken, title, name, content).asJsonObject { _, jsonObject, exception ->
-			if (jsonObject != null && exception == null) try {
-				callback(true, jsonObject.parsePageResponse())
-			} catch (e: Exception) {
-				callback(false, null)
+		try {
+			Bridge.get("${ApiBase}createPage?access_token=%s&title=%s&author_name=%s&content=%s&return_content=true", accessToken, title, name, content).asString { response, _, _ ->
+				if (response?.isSuccess == true) callback(true, response.asAsonObject()?.toStockJson()?.parsePageResponse())
+				else callback(false, null)
 			}
-			else callback(false, null)
+		} catch (e: Exception) {
+			callback(false, null)
 		}
 	}
 
 	fun editPage(accessToken: String?, path: String?, content: String?, title: String?, name: String?, callback: (success: Boolean, Page?) -> Unit) {
-		Bridge.get("${ApiBase}editPage/$path?access_token=%s&title=%s&author_name=%s&content=%s&return_content=true", accessToken, title, name, content).asJsonObject { _, jsonObject, exception ->
-			if (jsonObject != null && exception == null) try {
-				callback(true, jsonObject.parsePageResponse())
-			} catch (e: Exception) {
-				callback(false, null)
+		try {
+			Bridge.get("${ApiBase}editPage/$path?access_token=%s&title=%s&author_name=%s&content=%s&return_content=true", accessToken, title, name, content).asString { response, _, _ ->
+				if (response?.isSuccess == true) callback(true, response.asAsonObject()?.toStockJson()?.parsePageResponse())
+				else callback(false, null)
 			}
-			else callback(false, null)
+		} catch (e: Exception) {
+			callback(false, null)
 		}
 	}
 
 	fun createAccount(callback: (accessToken: String?) -> Unit) {
-		Bridge.get("${ApiBase}createAccount?short_name=teleposter").asJsonObject { _, jsonObject, exception ->
-			if (jsonObject != null && exception == null) try {
-				callback(jsonObject.optJSONObject("result")?.optString("access_token"))
-			} catch (e: Exception) {
-				callback(null)
+		try {
+			Bridge.get("${ApiBase}createAccount?short_name=teleposter").asString { response, _, _ ->
+				if (response?.isSuccess == true) callback(response.asAsonObject()?.toStockJson()?.optJSONObject("result")?.optString("access_token"))
+				else callback(null)
 			}
-			else callback(null)
+		} catch (e: Exception) {
+			callback(null)
 		}
 	}
 
 	fun getPageList(accessToken: String?, offset: Int = 0, callback: (success: Boolean, MutableList<Page>?) -> Unit) {
-		Bridge.get("${ApiBase}getPageList?access_token=%s&limit=200&offset=$offset", accessToken).asJsonObject { _, jsonObject, exception ->
-			if (jsonObject != null && exception == null) try {
-				jsonObject.optJSONObject("result")?.let {
-					val totalCount = it.optInt("total_count")
-					var currentCount = 200 + offset
-					val result = mutableListOf<Page>()
-					it.optJSONArray("pages")?.let {
-						for (i in 0 until it.length()) {
-							val page = it.optJSONObject(i)?.parsePage()
-							if (page != null) result.add(page)
-						}
-					}
-					if (currentCount < totalCount) {
-						getPageList(accessToken, currentCount) { success, pages ->
-							if (success && pages != null) {
-								result.addAll(pages)
-								callback(true, result)
+		try {
+			Bridge.get("${ApiBase}getPageList?access_token=%s&limit=200&offset=$offset", accessToken).asString { response, _, _ ->
+				if (response?.isSuccess == true)
+					response.asAsonObject()?.toStockJson()?.optJSONObject("result")?.let {
+						val totalCount = it.optInt("total_count")
+						var currentCount = 200 + offset
+						val result = mutableListOf<Page>()
+						it.optJSONArray("pages")?.let {
+							for (i in 0 until it.length()) {
+								val page = it.optJSONObject(i)?.parsePage()
+								if (page != null) result.add(page)
 							}
-							if (!success) callback(false, null)
 						}
-						currentCount += 200
-					} else callback(true, result)
-				} ?: callback(false, null)
-			} catch (e: Exception) {
-				callback(false, null)
+						if (currentCount < totalCount) {
+							getPageList(accessToken, currentCount) { success, pages ->
+								if (success && pages != null) {
+									result.addAll(pages)
+									callback(true, result)
+								}
+								if (!success) callback(false, null)
+							}
+							currentCount += 200
+						} else callback(true, result)
+					} ?: callback(false, null)
+				else callback(false, null)
 			}
-			else callback(false, null)
+		} catch (e: Exception) {
+			callback(false, null)
 		}
 	}
 
@@ -126,12 +127,16 @@ object Api {
 	}
 
 	fun uploadImage(file: File, callback: (url: String?) -> Unit) {
-		Bridge.post("http://telegra.ph/upload")
-				.body(MultipartForm().add("FileUpload", file))
-				.asJsonArray { _, jsonArray, _ ->
-					val src = jsonArray?.optJSONObject(0)?.optString("src", null)
-					callback(src)
-				}
+		try {
+			Bridge.post("http://telegra.ph/upload")
+					.body(MultipartForm().add("FileUpload", file))
+					.asJsonArray { _, jsonArray, _ ->
+						val src = jsonArray?.optJSONObject(0)?.optString("src", null)
+						callback(src)
+					}
+		} catch (e: Exception) {
+			callback(null)
+		}
 	}
 
 }
