@@ -2,16 +2,15 @@ package telegra.ph
 
 import com.github.kittinunf.fuel.android.core.Json
 import com.github.kittinunf.fuel.android.extension.responseJson
-import com.github.kittinunf.fuel.core.FuelError
-import com.github.kittinunf.fuel.core.FuelManager
-import com.github.kittinunf.fuel.core.Request
-import com.github.kittinunf.fuel.core.Response
+import com.github.kittinunf.fuel.core.*
 import com.github.kittinunf.fuel.httpGet
+import com.github.kittinunf.fuel.httpUpload
 import com.github.kittinunf.result.Result
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.File
 
-class TelegraphApi {
+object TelegraphApi {
 
 	// Telegraph
 
@@ -60,20 +59,20 @@ class TelegraphApi {
 		}
 	}
 
-	fun getPage(path: String, returnContent: Boolean? = null, callback: (success: Boolean, page: Page?, error: String?) -> Unit) {
-		callService("/getPage", listOf("path" to path, "return_content" to returnContent)) { _, _, result ->
+	fun getPage(accessToken: String? = null, path: String, returnContent: Boolean? = null, callback: (success: Boolean, page: Page?, error: String?) -> Unit) {
+		callService("/getPage", listOf("access_token" to accessToken, "path" to path, "return_content" to returnContent)) { _, _, result ->
 			handleResponse(result, callback) { obj: JSONObject -> callback(true, Page(obj), null) }
 		}
 	}
 
 	fun getPageList(accessToken: String, offset: Int? = null, limit: Int? = null, callback: (success: Boolean, page: PageList?, error: String?) -> Unit) {
-		callService("/getPage", listOf("access_token" to accessToken, "offset" to offset, "limit" to limit)) { _, _, result ->
+		callService("/getPageList", listOf("access_token" to accessToken, "offset" to offset, "limit" to limit)) { _, _, result ->
 			handleResponse(result, callback) { obj: JSONObject -> callback(true, PageList(obj), null) }
 		}
 	}
 
 	fun getViews(path: String, year: Int? = null, month: Int? = null, day: Int? = null, hour: Int? = null, callback: (success: Boolean, page: PageViews?, error: String?) -> Unit) {
-		callService("/getPage", listOf("path" to path, "year" to year, "month" to month, "day" to day, "hour" to hour)) { _, _, result ->
+		callService("/getViews", listOf("path" to path, "year" to year, "month" to month, "day" to day, "hour" to hour)) { _, _, result ->
 			handleResponse(result, callback) { obj: JSONObject -> callback(true, PageViews(obj), null) }
 		}
 	}
@@ -139,14 +138,34 @@ class TelegraphApi {
 		if (error == null && json != null) {
 			val jsonObj = json.obj()
 			if (jsonObj.optBoolean("ok")) {
-				handler(true, null, null)
-			} else {
 				callback(jsonObj.optJSONObject("result"))
+			} else {
+				handler(false, null, jsonObj.optString("error"))
 			}
 		} else {
 			handler(false, null, error?.message)
 		}
 	}
 
+	fun uploadImage(file: File, callback: (success: Boolean, src: String?, error: String?) -> Unit) {
+		"http://telegra.ph/upload".httpUpload()
+				.dataParts { _, _ ->
+					listOf(DataPart(file, name = "FileUpload"))
+				}
+				.responseJson { _, _, result ->
+					val (json, error) = result
+					if (error == null && json != null) {
+						val jsonObj = json.array().optJSONObject(0)
+						val src = jsonObj?.optString("src")
+						if (src != null) {
+							callback(true, src, null)
+						} else {
+							callback(false, null, null)
+						}
+					} else {
+						callback(false, null, error?.message)
+					}
+				}
+	}
 
 }

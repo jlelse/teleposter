@@ -19,7 +19,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener, FileChooserD
 	private val editor: Editor? by lazy { findViewById<Editor?>(R.id.editor) }
 
 	private var currentUrl = ""
-	private var currentPage: Page? = null
+	private var currentPage: TelegraphApi.Page? = null
 	private var editorMode = true
 	private var canEdit = false
 	private var isEdit = false
@@ -37,8 +37,12 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener, FileChooserD
 			isVerticalScrollBarEnabled = false
 			overScrollMode = View.OVER_SCROLL_NEVER
 		}
-		if (accessToken().isNullOrBlank()) Api.createAccount { accessToken ->
-			if (accessToken != null) saveAccessToken(accessToken)
+		if (accessToken().isBlank()) TelegraphApi.createAccount(shortName = "teleposter") { success, account, error ->
+			if (success && account != null && account.accessToken != null) {
+				saveAccessToken(account.accessToken)
+			} else {
+				showError(error)
+			}
 		}
 		if (intent.action == Intent.ACTION_VIEW && intent.dataString.contains("telegra.ph")) loadPage(intent.dataString.split("/").last())
 		else loadEditor()
@@ -54,13 +58,14 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener, FileChooserD
 			webView?.visibility = View.GONE
 			currentPage = null
 			// Load
-			if (path != null) Api.getPage(path, accessToken()) { success, page ->
-				if (success) runOnUiThread {
+			if (path != null) TelegraphApi.getPage(accessToken(), path, true) { success, page, error ->
+				if (success && page != null) {
 					isEdit = true
 					currentPage = page
-					editor?.setText(page?.content ?: "")
+					editor?.setText(page.content ?: "")
+				} else {
+					showError(error)
 				}
-				else showError()
 			}
 		}
 	}
@@ -74,17 +79,17 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener, FileChooserD
 			editor?.visibility = View.GONE
 			currentPage = null
 			// Load
-			Api.getPage(path, accessToken()) { success, page ->
-				if (success) showPage(page)
-				else showError()
+			TelegraphApi.getPage(accessToken(), path, true) { success, page, error ->
+				if (success && page != null) showPage(page)
+				else showError(error)
 			}
 		}
 	}
 
-	private fun showPage(page: Page?) {
+	private fun showPage(page: TelegraphApi.Page?) {
 		runOnUiThread {
 			editorMode = false
-			canEdit = page?.can_edit ?: false
+			canEdit = page?.canEdit ?: false
 			invalidateOptionsMenu()
 			webView?.visibility = View.VISIBLE
 			editor?.visibility = View.GONE
@@ -94,10 +99,10 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener, FileChooserD
 			page?.let {
 				var html = getString(R.string.viewer_html_head)
 				html += "<h1>${it.title}</h1>"
-				if (!it.author_name.isEmpty() && !it.author_url.isBlank()) html += "<a href=\"${it.author_url}\">${it.author_name}</a><br>"
-				else if (!it.author_name.isEmpty()) html += "${it.author_name}<br>"
+				if (!it.authorName.isNullOrBlank() && !it.authorUrl.isNullOrBlank()) html += "<a href=\"${it.authorUrl}\">${it.authorName}</a><br>"
+				else if (!it.authorName.isNullOrBlank()) html += "${it.authorName}<br>"
 				if (it.views != 0) html += "${it.views} times viewed<br><br>"
-				if (it.content.isBlank()) html += it.description.replace("\n", "<br>") else html += it.content
+				html += if (it.content.isNullOrBlank()) it.description.replace("\n", "<br>") else it.content
 				html += getString(R.string.viewer_html_end)
 				webView?.loadDataWithBaseURL(it.url, html, "text/html; charset=UTF-8", null, null)
 				currentUrl = it.url
@@ -105,11 +110,11 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener, FileChooserD
 		}
 	}
 
-	private fun showError() {
+	private fun showError(message: String? = null) {
 		runOnUiThread {
 			MaterialDialog.Builder(this)
 					.title(R.string.error)
-					.content(R.string.error_desc)
+					.content(message ?: getString(R.string.error_desc))
 					.positiveText(android.R.string.ok)
 					.show()
 		}
@@ -143,8 +148,10 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener, FileChooserD
 	}
 
 	override fun onFileSelection(p0: FileChooserDialog, file: File) {
-		Api.uploadImage(file) { src ->
-			if (src != null) editor?.addImage(src)
+		TelegraphApi.uploadImage(file) { success, src, error ->
+			if (success && src != null && src.isNotBlank())
+				editor?.addImage(src)
+			else showError(error)
 		}
 	}
 
@@ -207,18 +214,23 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener, FileChooserD
 				editor?.getText { json ->
 					MaterialDialog.Builder(this)
 							.title(R.string.title_question)
-							.input(getString(R.string.title_hint), currentPage?.title ?: "", { _, title ->
+							.input(getString(R.string.title_hint), currentPage?.title
+									?: "", { _, title ->
 								MaterialDialog.Builder(this)
 										.title(R.string.name_question)
-										.input(getString(R.string.name_hint), if (isEdit) currentPage?.author_name ?: authorName() ?: "" else authorName() ?: "", { _, name ->
+										.input(getString(R.string.name_hint), if (isEdit) currentPage?.authorName
+												?: authorName() ?: "" else authorName()
+												?: "", { _, name ->
 											if (!isEdit) saveAuthorName(name.toString())
-											if (isEdit) Api.editPage(accessToken(), currentPage?.path, json, title.toString(), name.toString()) { success, page ->
-												if (success) showPage(page)
-												else showError()
-											}
-											else Api.createPage(accessToken(), json, title.toString(), name.toString()) { success, page ->
-												if (success) showPage(page)
-												else showError()
+											if (isEdit) TelegraphApi.editPage(accessToken(), currentPage?.path
+													?: "", authorName = name.toString(), title = title.toString(), content = json
+													?: "", returnContent = true) { success, page, error ->
+												if (success && page != null) showPage(page)
+												else showError(error)
+											} else TelegraphApi.createPage(accessToken(), content = json
+													?: "", title = title.toString(), authorName = name.toString(), returnContent = true) { success, page, error ->
+												if (success && page != null) showPage(page)
+												else showError(error)
 											}
 										})
 										.show()
@@ -255,18 +267,17 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener, FileChooserD
 				true
 			}
 			R.id.published -> {
-				Api.getPageList(accessToken()) { success, result ->
-					if (!success || result == null || result.isEmpty()) showError()
-					else {
+				TelegraphApi.getPageList(accessToken()) { success, pageList, error ->
+					if (success && pageList != null && pageList.pages != null) {
 						MaterialDialog.Builder(this)
 								.title(R.string.published)
 								.positiveText(android.R.string.ok)
-								.items(result.map(Page::title))
+								.items(pageList.pages.map { it.title })
 								.itemsCallback { _, _, i, _ ->
-									loadPage(result.map(Page::path)[i])
+									loadPage(pageList.pages[i].path)
 								}
 								.show()
-					}
+					} else showError(error)
 				}
 				true
 			}
