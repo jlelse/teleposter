@@ -9,6 +9,7 @@ import com.github.kittinunf.result.Result
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
+import java.net.URLConnection
 
 object TelegraphApi {
 
@@ -150,7 +151,7 @@ object TelegraphApi {
 	fun uploadImage(file: File, callback: (success: Boolean, src: String?, error: String?) -> Unit) {
 		"http://telegra.ph/upload".httpUpload()
 				.dataParts { _, _ ->
-					listOf(DataPart(file, name = "FileUpload"))
+					listOf(DataPart(file, name = "FileUpload", type = URLConnection.guessContentTypeFromName(file.name)))
 				}
 				.responseJson { _, _, result ->
 					val (json, error) = result
