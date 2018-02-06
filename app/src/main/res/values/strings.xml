@@ -17,10 +17,10 @@
 	<string name="error">Error</string>
 	<string name="error_desc">Something unexpected happened!</string>
 	<string name="viewer_html_head">
-		<![CDATA[<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css\"><style> * { max-width: 100%; height: auto; word-break: break-all; word-break: break-word; }</style></head><body>]]>
+		<![CDATA[<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css\"><style> * { max-width: 100%; height: auto; word-break: break-all; word-break: break-word; }</style><script src=\"http://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js\"></script></head><body>]]>
 	</string>
 	<string name="viewer_html_end">
-		<![CDATA[<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script><script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js\"></script></body></html>]]>
+		<![CDATA[</body></html>]]>
 	</string>
 	<string name="published">Published posts</string>
 	<string name="name_question">Your name?</string>
