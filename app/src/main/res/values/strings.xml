@@ -3,7 +3,7 @@
 	<string name="share">Share</string>
 	<string name="help">Help</string>
 	<string name="help_text">
-		<![CDATA[<h3>Why can\'t I select headings?</h3>Unfortunately I wasn\'t able to add the feature yet, but you can do it manually via the code editor.<h3>Why can\'t I login with my Telegram account?</h3>That\'s not possible!<h3>Used libraries</h3><a href=\"https://github.com/afollestad/material-dialogs\">Material Dialogs</a>, <a href=\"https://github.com/afollestad/bridge\">Bridge</a>, <a href=\"https://github.com/delight-im/Android-AdvancedWebView\">AdvancedWebView</a>, <a href=\"https://github.com/googlesamples/easypermissions\">EasyPermissions</a><h3>About</h3>This app is made by <a href="https://jlelse.eu">Jan-Lukas Else</a> and it\'s code is published on <a href="https://github.com/jlelse/teleposter">Github</a>.]]></string>
+		<![CDATA[<h3>Why can\'t I select headings?</h3>Unfortunately I wasn\'t able to add the feature yet, but you can do it manually via the code editor.<h3>Why can\'t I login with my Telegram account?</h3>That\'s not possible!<h3>Used libraries</h3><a href=\"https://github.com/afollestad/material-dialogs\">Material Dialogs</a>, <a href=\"https://github.com/kittinunf/Fuel\">Fuel</a>, <a href=\"https://github.com/delight-im/Android-AdvancedWebView\">AdvancedWebView</a>, <a href=\"https://github.com/googlesamples/easypermissions\">EasyPermissions</a><h3>About</h3>This app is made by <a href="https://jlelse.eu">Jan-Lukas Else</a> and it\'s code is published on <a href="https://github.com/jlelse/teleposter">Github</a>.]]></string>
 	<string name="bookmarks">Bookmarks</string>
 	<string name="bookmark_this">Bookmark this</string>
 	<string name="create">Create</string>
