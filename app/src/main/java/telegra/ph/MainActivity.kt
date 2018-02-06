@@ -247,9 +247,9 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener, FileChooserD
 				MaterialDialog.Builder(this)
 						.title(R.string.bookmarks)
 						.positiveText(android.R.string.ok)
-						.items(bookmarks().reversed().map { it.split("xxx;xxx")[1] })
+						.items(bookmarks().reversed().map { it.second })
 						.itemsCallback { _, _, i, _ ->
-							loadPage(bookmarks().reversed().map { it.split("xxx;xxx")[0] }[i])
+							loadPage(bookmarks().reversed().map { it.first }[i])
 						}
 						.itemsLongCallback { _, _, i, _ ->
 							MaterialDialog.Builder(this)
@@ -258,7 +258,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener, FileChooserD
 									.positiveText(android.R.string.yes)
 									.negativeText(android.R.string.no)
 									.onPositive { _, _ ->
-										deleteBookmark(bookmarks().reversed().map { it.split("xxx;xxx")[0] }[i])
+										deleteBookmark(bookmarks().reversed().map { it.first }[i])
 									}
 									.show()
 							true
@@ -285,7 +285,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener, FileChooserD
 				MaterialDialog.Builder(this)
 						.title(R.string.title_question)
 						.input(getString(R.string.title_hint), "", { _, input ->
-							addBookmark("${currentUrl.split("/").last()}xxx;xxx$input")
+							addBookmark(currentUrl.split("/").last(), input.toString())
 						})
 						.show()
 				true
