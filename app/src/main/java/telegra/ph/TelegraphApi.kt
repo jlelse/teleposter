@@ -3,7 +3,7 @@ package telegra.ph
 import com.github.kittinunf.fuel.android.core.Json
 import com.github.kittinunf.fuel.android.extension.responseJson
 import com.github.kittinunf.fuel.core.*
-import com.github.kittinunf.fuel.httpGet
+import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.httpUpload
 import com.github.kittinunf.result.Result
 import org.json.JSONArray
@@ -20,9 +20,12 @@ object TelegraphApi {
 	}
 
 	private fun callService(method: String, parameters: List<Pair<String, Any?>>, handler: (Request, Response, Result<Json, FuelError>) -> Unit) {
-		method.httpGet(parameters.filter { it.second != null }).responseJson(handler)
+		val requestObject = JSONObject()
+		parameters.forEach {
+			requestObject.put(it.first, it.second)
+		}
+		method.httpPost().header("Content-Type" to "application/json").body(requestObject.toString()).responseJson(handler)
 	}
-
 
 	fun createAccount(shortName: String, authorName: String? = null, authorUrl: String? = null, callback: (success: Boolean, account: Account?, error: String?) -> Unit) {
 		callService("/createAccount", listOf("short_name" to shortName, "author_name" to authorName, "author_url" to authorUrl)) { _, _, result ->
