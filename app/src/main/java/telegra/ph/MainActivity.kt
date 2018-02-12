@@ -11,16 +11,9 @@ import com.afollestad.materialdialogs.MaterialDialog
 import im.delight.android.webview.AdvancedWebView
 
 class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
-	private val webView: AdvancedWebView? by lazy {
-		findViewById<AdvancedWebView?>(R.id.webView)?.apply {
+	private val viewer: Viewer? by lazy {
+		findViewById<Viewer?>(R.id.viewer)?.apply {
 			setListener(this@MainActivity, this@MainActivity)
-			setMixedContentAllowed(true)
-			setCookiesEnabled(true)
-			setThirdPartyCookiesEnabled(true)
-			addPermittedHostname("telegra.ph")
-			isHorizontalScrollBarEnabled = false
-			isVerticalScrollBarEnabled = false
-			overScrollMode = View.OVER_SCROLL_NEVER
 		}
 	}
 	private val editor: Editor? by lazy {
@@ -29,7 +22,6 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 		}
 	}
 
-	private var currentUrl = ""
 	private var currentPage: TelegraphApi.Page? = null
 	private var editorMode = true
 	private var canEdit = false
@@ -56,14 +48,14 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			isEdit = false
 			invalidateOptionsMenu()
 			editor?.visibility = View.VISIBLE
-			webView?.visibility = View.GONE
+			viewer?.visibility = View.GONE
 			currentPage = null
 			// Load
 			if (path != null) TelegraphApi.getPage(accessToken(), path, true) { success, page, error ->
 				if (success && page != null) {
 					isEdit = true
 					currentPage = page
-					editor?.setText(page.content ?: "")
+					editor?.setContent(page.content)
 				} else {
 					showError(error)
 				}
@@ -79,7 +71,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			editorMode = false
 			canEdit = false
 			invalidateOptionsMenu()
-			webView?.visibility = View.VISIBLE
+			viewer?.visibility = View.VISIBLE
 			editor?.visibility = View.GONE
 			currentPage = null
 			// Load
@@ -95,21 +87,17 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			editorMode = false
 			canEdit = page?.canEdit ?: false
 			invalidateOptionsMenu()
-			webView?.visibility = View.VISIBLE
+			viewer?.visibility = View.VISIBLE
 			editor?.visibility = View.GONE
 			currentPage = page
-			webView?.clearHistory()
+			viewer?.clearHistory()
 			// Show
 			page?.let {
-				var html = getString(R.string.viewer_html_head)
-				html += "<h1>${it.title}</h1>"
-				if (!it.authorName.isNullOrBlank() && !it.authorUrl.isNullOrBlank()) html += "<a href=\"${it.authorUrl}\">${it.authorName}</a><br>"
-				else if (!it.authorName.isNullOrBlank()) html += "${it.authorName}<br>"
-				if (it.views != 0) html += "${it.views} times viewed<br><br>"
-				html += if (it.content.isNullOrBlank()) it.description.replace("\n", "<br>") else it.content
-				html += getString(R.string.viewer_html_end)
-				webView?.loadDataWithBaseURL(it.url, html, "text/html; charset=UTF-8", null, null)
-				currentUrl = it.url
+				viewer?.setArticleTitle(it.title)
+				viewer?.setAuthor(it.authorName, it.authorUrl)
+				viewer?.setViews(it.views)
+				if (it.content == null) viewer?.setDescription(it.description)
+				else viewer?.setContent(it.content)
 			}
 		}
 	}
@@ -140,29 +128,13 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 		AdvancedWebView.Browsers.openUrl(this, url)
 	}
 
-	override fun onResume() {
-		super.onResume()
-		webView?.onResume()
-	}
-
-	override fun onPause() {
-		webView?.onPause()
-		super.onPause()
-	}
-
-	override fun onDestroy() {
-		webView?.onDestroy()
-		super.onDestroy()
-	}
-
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 		super.onActivityResult(requestCode, resultCode, data)
-		webView?.onActivityResult(requestCode, resultCode, data)
 		editor?.onActivityResult(requestCode, resultCode, data)
 	}
 
 	override fun onBackPressed() {
-		if (webView?.onBackPressed() == false) return
+		if (viewer?.onBackPressed() == false) return
 		else super.onBackPressed()
 	}
 
@@ -264,7 +236,8 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 				MaterialDialog.Builder(this)
 						.title(R.string.title_question)
 						.input(getString(R.string.title_hint), "", { _, input ->
-							addBookmark(currentUrl.split("/").last(), input.toString())
+							val curPage = currentPage
+							if (curPage?.url != null) addBookmark(curPage.url.split("/").last(), input.toString())
 						})
 						.show()
 				true
@@ -273,8 +246,8 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 				val shareIntent = Intent()
 				shareIntent.action = Intent.ACTION_SEND
 				shareIntent.type = "text/plain"
-				shareIntent.putExtra(Intent.EXTRA_TITLE, webView?.title)
-				shareIntent.putExtra(Intent.EXTRA_TEXT, currentUrl)
+				shareIntent.putExtra(Intent.EXTRA_TITLE, currentPage?.title)
+				shareIntent.putExtra(Intent.EXTRA_TEXT, currentPage?.url)
 				startActivity(Intent.createChooser(shareIntent, getString(R.string.share)))
 				true
 			}

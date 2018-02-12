@@ -98,6 +98,15 @@
 				}
 			});
 		});
+
+		function setContent(content) {
+			reset();
+			if (content) $('#summernote').summernote('code', content);
+		}
+
+		function reset() {
+			$('#summernote').summernote('reset');
+		}
 	</script>
 </body>
 
