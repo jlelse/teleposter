@@ -10,6 +10,7 @@ import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpCookie
 
 object TelegraphApi {
 
@@ -148,6 +149,25 @@ object TelegraphApi {
 			}
 		} else {
 			handler(false, null, error?.message)
+		}
+	}
+
+	// Telegra.ph
+
+	fun login(authUrl: String, callback: (success: Boolean, accessToken: String?, account: Account?) -> Unit) {
+		authUrl.httpPost().response { _, response, _ ->
+			var token: String? = null
+			response.headers["Set-Cookie"]
+					?.flatMap { HttpCookie.parse(it) }
+					?.find { it.name == "tph_token" }
+					?.let {
+						token = it.value
+					}
+			if (token != null) getAccountInfo(accessToken = token!!) { success, account, _ ->
+				if (success) callback(true, token, account)
+				else callback(false, null, null)
+			}
+			else callback(false, null, null)
 		}
 	}
 
