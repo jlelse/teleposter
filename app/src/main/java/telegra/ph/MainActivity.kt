@@ -8,15 +8,26 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import com.afollestad.materialdialogs.MaterialDialog
-import com.afollestad.materialdialogs.folderselector.FileChooserDialog
 import im.delight.android.webview.AdvancedWebView
-import pub.devrel.easypermissions.AfterPermissionGranted
-import pub.devrel.easypermissions.EasyPermissions
-import java.io.File
 
-class MainActivity : AppCompatActivity(), AdvancedWebView.Listener, FileChooserDialog.FileCallback {
-	private val webView: AdvancedWebView? by lazy { findViewById<AdvancedWebView?>(R.id.webView) }
-	private val editor: Editor? by lazy { findViewById<Editor?>(R.id.editor) }
+class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
+	private val webView: AdvancedWebView? by lazy {
+		findViewById<AdvancedWebView?>(R.id.webView)?.apply {
+			setListener(this@MainActivity, this@MainActivity)
+			setMixedContentAllowed(true)
+			setCookiesEnabled(true)
+			setThirdPartyCookiesEnabled(true)
+			addPermittedHostname("telegra.ph")
+			isHorizontalScrollBarEnabled = false
+			isVerticalScrollBarEnabled = false
+			overScrollMode = View.OVER_SCROLL_NEVER
+		}
+	}
+	private val editor: Editor? by lazy {
+		findViewById<Editor?>(R.id.editor)?.apply {
+			setListener(this@MainActivity, this@MainActivity)
+		}
+	}
 
 	private var currentUrl = ""
 	private var currentPage: TelegraphApi.Page? = null
@@ -27,16 +38,6 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener, FileChooserD
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main)
-		webView?.apply {
-			setListener(this@MainActivity, this@MainActivity)
-			setMixedContentAllowed(true)
-			setCookiesEnabled(true)
-			setThirdPartyCookiesEnabled(true)
-			addPermittedHostname("telegra.ph")
-			isHorizontalScrollBarEnabled = false
-			isVerticalScrollBarEnabled = false
-			overScrollMode = View.OVER_SCROLL_NEVER
-		}
 		if (accessToken().isBlank()) TelegraphApi.createAccount(shortName = "teleposter") { success, account, error ->
 			if (success && account != null && account.accessToken != null) {
 				saveAccessToken(account.accessToken)
@@ -120,17 +121,6 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener, FileChooserD
 		}
 	}
 
-	@AfterPermissionGranted(100)
-	private fun uploadImage() {
-		if (EasyPermissions.hasPermissions(this, "android.permission.READ_EXTERNAL_STORAGE")) {
-			FileChooserDialog.Builder(this)
-					.mimeType("image/*")
-					.show(this)
-		} else {
-			EasyPermissions.requestPermissions(this, "", 100, "android.permission.READ_EXTERNAL_STORAGE")
-		}
-	}
-
 	override fun onPageFinished(url: String?) {
 	}
 
@@ -145,17 +135,6 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener, FileChooserD
 
 	override fun onExternalPageRequest(url: String?) {
 		AdvancedWebView.Browsers.openUrl(this, url)
-	}
-
-	override fun onFileSelection(p0: FileChooserDialog, file: File) {
-		TelegraphApi.uploadImage(file) { success, src, error ->
-			if (success && src != null && src.isNotBlank())
-				editor?.addImage(src)
-			else showError(error)
-		}
-	}
-
-	override fun onFileChooserDismissed(p0: FileChooserDialog) {
 	}
 
 	override fun onResume() {
@@ -176,6 +155,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener, FileChooserD
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 		super.onActivityResult(requestCode, resultCode, data)
 		webView?.onActivityResult(requestCode, resultCode, data)
+		editor?.onActivityResult(requestCode, resultCode, data)
 	}
 
 	override fun onBackPressed() {
@@ -202,10 +182,6 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener, FileChooserD
 
 	override fun onOptionsItemSelected(item: MenuItem): Boolean {
 		return when (item.itemId) {
-			R.id.image -> {
-				uploadImage()
-				true
-			}
 			R.id.create -> {
 				loadEditor()
 				true
@@ -309,10 +285,5 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener, FileChooserD
 			}
 			else -> super.onOptionsItemSelected(item)
 		}
-	}
-
-	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-		EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
 	}
 }

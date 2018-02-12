@@ -1,78 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css"
-	      rel="stylesheet">
-	<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
-	<link href="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.9/summernote.css"
-	      rel="stylesheet">
-	<script src="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.9/summernote.js"></script>
-	<style> * { max-width: 100%; height: auto; word-break: break-all; word-break: break-word; }
+	<link href="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.9/summernote-lite.css" rel="stylesheet">
+	<style>
+		* {
+			max-width: 100%;
+			height: auto;
+			word-break: break-all;
+			word-break: break-word;
+		}
 
+		#summernote {
+			width: 100%;
+			height: 100%
+		}
 	</style>
 </head>
+
 <body>
-<div id="summernote" style="width:100%;height:100%"></div>
-<script>
-    function domToNode(domNode) {
-        if (domNode.nodeType == domNode.TEXT_NODE) {
-            return domNode.data;
-        }
-        if (domNode.nodeType != domNode.ELEMENT_NODE) {
-            return false;
-        }
-        var nodeElement = {};
-        nodeElement.tag = domNode.tagName.toLowerCase();
-        for (var i = 0; i < domNode.attributes.length; i++) {
-            var attr = domNode.attributes[i];
-            if (attr.name == 'href' || attr.name == 'src') {
-                if (!nodeElement.attrs) {
-                    nodeElement.attrs = {};
-                }
-                nodeElement.attrs[attr.name] = attr.value;
-            }
-        }
-        if (domNode.childNodes.length > 0) {
-            nodeElement.children = [];
-            for (var ii = 0; ii < domNode.childNodes.length; ii++) {
-                var child = domNode.childNodes[ii];
-                nodeElement.children.push(domToNode(child));
-            }
-        }
-        return nodeElement;
-    }
+	<div id="summernote"></div>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.9/summernote-lite.min.js"></script>
+	<script>
+		function domToNode(domNode) {
+			if (domNode.nodeType == domNode.TEXT_NODE) {
+				return domNode.data;
+			}
+			if (domNode.nodeType != domNode.ELEMENT_NODE) {
+				return false;
+			}
+			var nodeElement = {};
+			nodeElement.tag = domNode.tagName.toLowerCase();
+			for (var i = 0; i < domNode.attributes.length; i++) {
+				var attr = domNode.attributes[i];
+				if (attr.name == 'href' || attr.name == 'src') {
+					if (!nodeElement.attrs) {
+						nodeElement.attrs = {};
+					}
+					nodeElement.attrs[attr.name] = attr.value;
+				}
+			}
+			if (domNode.childNodes.length > 0) {
+				nodeElement.children = [];
+				for (var ii = 0; ii < domNode.childNodes.length; ii++) {
+					var child = domNode.childNodes[ii];
+					nodeElement.children.push(domToNode(child));
+				}
+			}
+			return nodeElement;
+		}
 
-    function getNodeJson() {
-        window.android.getText(JSON.stringify(domToNode(document.getElementsByClassName('note-editable')[0]).children));
-    }
+		function getNodeJson() {
+			window.android.getText(JSON.stringify(domToNode(document.getElementsByClassName('note-editable')[0]).children));
+		}
 
-</script>
-<script>
-    $(document).ready(function () {
-        $('#summernote').summernote({
-            height: 1200,
-            focus: true,
-            placeholder: '',
-            toolbar: [
-                // [groupName, [list of button]]
-                ['style', ['bold', 'italic']],
-                ['para', ['ul', 'ol']],
-                ['insert', ['link']],
-                ['history', ['undo', 'redo']],
-                ['other', ['codeview']]
-            ],
-            callbacks: {
-                onInit: function (e) {
-                    $("#summernote").summernote("fullscreen.toggle");
-                }
-            }
-        });
-    });
+		function uploadImage(file) {
+			data = new FormData();
+			data.append("FileUpload", file);
+			$.ajax({
+				data: data,
+				type: "POST",
+				url: "http://telegra.ph/upload",
+				cache: false,
+				contentType: false,
+				processData: false,
+				success: function (data) {
+					if (data) {
+						$('#summernote').summernote('insertImage', data[0].src);
+					}
+				}
+			});
+		}
 
-</script>
+		$(document).ready(function () {
+			$('#summernote').summernote({
+				height: 1200,
+				focus: true,
+				placeholder: 'Start writing...',
+				toolbar: [
+					['style', ['bold', 'italic', 'underline', 'clear']],
+					['para', ['ul', 'ol']],
+					['insert', ['link', 'picture', 'hr']],
+					['history', ['undo', 'redo']],
+					['other', ['codeview']]
+				],
+				callbacks: {
+					onInit: function (e) {
+						$("#summernote").summernote("fullscreen.toggle");
+					},
+					onImageUpload: function (files) {
+						uploadImage(files[0]);
+					}
+				}
+			});
+		});
+	</script>
 </body>
+
 </html>

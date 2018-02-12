@@ -2,14 +2,14 @@ package telegra.ph
 
 import com.github.kittinunf.fuel.android.core.Json
 import com.github.kittinunf.fuel.android.extension.responseJson
-import com.github.kittinunf.fuel.core.*
+import com.github.kittinunf.fuel.core.FuelError
+import com.github.kittinunf.fuel.core.FuelManager
+import com.github.kittinunf.fuel.core.Request
+import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.httpPost
-import com.github.kittinunf.fuel.httpUpload
 import com.github.kittinunf.result.Result
 import org.json.JSONArray
 import org.json.JSONObject
-import java.io.File
-import java.net.URLConnection
 
 object TelegraphApi {
 
@@ -149,27 +149,6 @@ object TelegraphApi {
 		} else {
 			handler(false, null, error?.message)
 		}
-	}
-
-	fun uploadImage(file: File, callback: (success: Boolean, src: String?, error: String?) -> Unit) {
-		"http://telegra.ph/upload".httpUpload()
-				.dataParts { _, _ ->
-					listOf(DataPart(file, name = "FileUpload", type = URLConnection.guessContentTypeFromName(file.name)))
-				}
-				.responseJson { _, _, result ->
-					val (json, error) = result
-					if (error == null && json != null) {
-						val jsonObj = json.array().optJSONObject(0)
-						val src = jsonObj?.optString("src")
-						if (src != null) {
-							callback(true, src, null)
-						} else {
-							callback(false, null, null)
-						}
-					} else {
-						callback(false, null, error?.message)
-					}
-				}
 	}
 
 }
