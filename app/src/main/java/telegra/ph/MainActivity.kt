@@ -67,6 +67,9 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 				} else {
 					showError(error)
 				}
+			} else {
+				// Reset
+				editor?.reset()
 			}
 		}
 	}

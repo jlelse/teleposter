@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.webkit.JavascriptInterface
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import im.delight.android.webview.AdvancedWebView
@@ -26,6 +27,7 @@ class Editor : AdvancedWebView {
 	@SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
 	private fun init() {
 		this.settings.javaScriptEnabled = true
+		this.settings.cacheMode = WebSettings.LOAD_NO_CACHE
 		this.addJavascriptInterface(MyJavaScriptInterface(), "android")
 		this.settings.loadWithOverviewMode = true
 		this.settings.useWideViewPort = true
@@ -39,13 +41,17 @@ class Editor : AdvancedWebView {
 		}
 	}
 
+	fun reset() {
+		this.loadUrl("javascript:$('#summernote').summernote('reset');")
+	}
+
 	fun setText(html: String) {
 		webViewClient = object : WebViewClient() {
 			override fun onPageFinished(view: WebView, url: String) {
 				setText(html)
 			}
 		}
-		this.loadUrl("javascript:$('#summernote').summernote('reset');")
+		reset()
 		this.loadUrl("javascript:$('#summernote').summernote('code', '" + html.replace("'", "\\'") + "');")
 	}
 
