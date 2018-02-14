@@ -9,6 +9,7 @@ import android.view.MenuItem
 import android.view.View
 import com.afollestad.materialdialogs.MaterialDialog
 import im.delight.android.webview.AdvancedWebView
+import java.net.URI
 
 class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 	private val viewer: Viewer? by lazy {
@@ -30,15 +31,20 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main)
-		if (accessToken().isBlank()) TelegraphApi.createAccount(shortName = "teleposter") { success, account, error ->
+		if (accessToken.isBlank()) TelegraphApi.createAccount(shortName = "teleposter") { success, account, error ->
 			if (success && account != null && account.accessToken != null) {
-				saveAccessToken(account.accessToken)
+				accessToken = account.accessToken
 			} else {
 				showError(error)
 			}
 		}
-		if (intent.action == Intent.ACTION_VIEW && intent.dataString.contains("telegra.ph")) loadPage(intent.dataString.split("/").last())
-		else loadEditor()
+		if (intent.action == Intent.ACTION_VIEW) {
+			val uri = URI.create(intent.dataString)
+			when (uri.host) {
+				"telegra.ph", "graph.org" -> loadPage(uri.path)
+				"edit.telegra.ph", "edit.graph.org" -> login(uri.toString())
+			}
+		}
 	}
 
 	private fun loadEditor(path: String? = null) {
@@ -51,7 +57,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			viewer?.visibility = View.GONE
 			currentPage = null
 			// Load
-			if (path != null) TelegraphApi.getPage(accessToken(), path, true) { success, page, error ->
+			if (path != null) TelegraphApi.getPage(accessToken, path, true) { success, page, error ->
 				if (success && page != null) {
 					isEdit = true
 					currentPage = page
@@ -66,6 +72,16 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 		}
 	}
 
+	private fun login(authUrl: String) {
+		TelegraphApi.login(authUrl) { success, accessToken, account ->
+			if (success && accessToken != null) {
+				this.accessToken = accessToken
+				this.authorName = account?.authorName
+				showMessage(getString(R.string.success), getString(R.string.login_success))
+			} else showError(getString(R.string.login_failed))
+		}
+	}
+
 	private fun loadPage(path: String) {
 		runOnUiThread {
 			editorMode = false
@@ -75,7 +91,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			editor?.visibility = View.GONE
 			currentPage = null
 			// Load
-			TelegraphApi.getPage(accessToken(), path, true) { success, page, error ->
+			TelegraphApi.getPage(accessToken, path, true) { success, page, error ->
 				if (success && page != null) showPage(page)
 				else showError(error)
 			}
@@ -102,11 +118,14 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 		}
 	}
 
-	private fun showError(message: String? = null) {
+	private fun showError(message: String? = null) = showMessage(getString(R.string.error), message
+			?: getString(R.string.error_desc))
+
+	private fun showMessage(title: String? = null, message: String? = null) {
 		runOnUiThread {
 			MaterialDialog.Builder(this)
-					.title(R.string.error)
-					.content(message ?: getString(R.string.error_desc))
+					.title(title ?: "")
+					.content(message ?: "")
 					.positiveText(android.R.string.ok)
 					.show()
 		}
@@ -170,15 +189,15 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 								MaterialDialog.Builder(this)
 										.title(R.string.name_question)
 										.input(getString(R.string.name_hint), if (isEdit) currentPage?.authorName
-												?: authorName() ?: "" else authorName()
+												?: authorName ?: "" else authorName
 												?: "", { _, name ->
-											if (!isEdit) saveAuthorName(name.toString())
-											if (isEdit) TelegraphApi.editPage(accessToken(), currentPage?.path
+											if (!isEdit) authorName = name.toString()
+											if (isEdit) TelegraphApi.editPage(accessToken, currentPage?.path
 													?: "", authorName = name.toString(), title = title.toString(), content = json
 													?: "", returnContent = true) { success, page, error ->
 												if (success && page != null) showPage(page)
 												else showError(error)
-											} else TelegraphApi.createPage(accessToken(), content = json
+											} else TelegraphApi.createPage(accessToken, content = json
 													?: "", title = title.toString(), authorName = name.toString(), returnContent = true) { success, page, error ->
 												if (success && page != null) showPage(page)
 												else showError(error)
@@ -218,7 +237,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 				true
 			}
 			R.id.published -> {
-				TelegraphApi.getPageList(accessToken()) { success, pageList, error ->
+				TelegraphApi.getPageList(accessToken) { success, pageList, error ->
 					if (success && pageList != null && pageList.pages != null) {
 						MaterialDialog.Builder(this)
 								.title(R.string.published)

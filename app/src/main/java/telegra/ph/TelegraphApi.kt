@@ -6,6 +6,8 @@ import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.Request
 import com.github.kittinunf.fuel.core.Response
+import com.github.kittinunf.fuel.core.interceptors.redirectResponseInterceptor
+import com.github.kittinunf.fuel.core.interceptors.validatorResponseInterceptor
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
 import org.json.JSONArray
@@ -14,10 +16,20 @@ import java.net.HttpCookie
 
 object TelegraphApi {
 
-	// Telegraph
+	private var loginAccessToken: String? = null
 
 	init {
 		FuelManager.instance.basePath = "https://api.telegra.ph"
+		FuelManager.instance.removeAllResponseInterceptors()
+		FuelManager.instance.addResponseInterceptor {
+			telegraphLoginInterceptor()
+		}
+		// Fix login
+		FuelManager.instance.addResponseInterceptor {
+			redirectResponseInterceptor(FuelManager.instance)
+			validatorResponseInterceptor(200..299)
+			it
+		}
 	}
 
 	private fun callService(method: String, parameters: List<Pair<String, Any?>>, handler: (Request, Response, Result<Json, FuelError>) -> Unit) {
@@ -152,23 +164,27 @@ object TelegraphApi {
 		}
 	}
 
-	// Telegra.ph
+	// Dirty hacks
 
 	fun login(authUrl: String, callback: (success: Boolean, accessToken: String?, account: Account?) -> Unit) {
-		authUrl.httpPost().response { _, response, _ ->
-			var token: String? = null
-			response.headers["Set-Cookie"]
-					?.flatMap { HttpCookie.parse(it) }
-					?.find { it.name == "tph_token" }
-					?.let {
-						token = it.value
-					}
-			if (token != null) getAccountInfo(accessToken = token!!) { success, account, _ ->
-				if (success) callback(true, token, account)
+		loginAccessToken = null
+		authUrl.httpPost().response { _, _, _ ->
+			if (loginAccessToken != null) getAccountInfo(accessToken = loginAccessToken!!) { success, account, _ ->
+				if (success) callback(true, loginAccessToken, account)
 				else callback(false, null, null)
-			}
-			else callback(false, null, null)
+			} else callback(false, null, null)
 		}
 	}
+
+	private fun telegraphLoginInterceptor(): (Request, Response) -> Response =
+			{ _, response ->
+				response.headers["Set-Cookie"]
+						?.flatMap { HttpCookie.parse(it) }
+						?.find { it.name == "tph_token" }
+						?.let {
+							loginAccessToken = it.value
+						}
+				response
+			}
 
 }

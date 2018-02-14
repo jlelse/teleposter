@@ -19,4 +19,7 @@
 	<string name="published">Published posts</string>
 	<string name="name_question">Your name?</string>
 	<string name="name_hint">Awesome Writer</string>
+	<string name="login_failed">Login failed. Try again!</string>
+	<string name="success">Success</string>
+	<string name="login_success">You successfully logged in!</string>
 </resources>

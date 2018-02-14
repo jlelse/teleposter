@@ -29,14 +29,14 @@ fun Context.saveBookmarks(bookmarks: List<Pair<String, String>>) {
 	).apply()
 }
 
-fun Context.accessToken(): String = PreferenceManager.getDefaultSharedPreferences(this).getString("accessToken", "")
+var Context.accessToken: String
+	get() = PreferenceManager.getDefaultSharedPreferences(this).getString("accessToken", "")
+	set(value) {
+		PreferenceManager.getDefaultSharedPreferences(this).edit().putString("accessToken", value).apply()
+	}
 
-fun Context.saveAccessToken(token: String) {
-	PreferenceManager.getDefaultSharedPreferences(this).edit().putString("accessToken", token).apply()
-}
-
-fun Context.authorName(): String? = PreferenceManager.getDefaultSharedPreferences(this).getString("authorName", null)
-
-fun Context.saveAuthorName(name: String) {
-	PreferenceManager.getDefaultSharedPreferences(this).edit().putString("authorName", name).apply()
-}
+var Context.authorName: String?
+	get() = PreferenceManager.getDefaultSharedPreferences(this).getString("authorName", null)
+	set(value) {
+		PreferenceManager.getDefaultSharedPreferences(this).edit().putString("authorName", value).apply()
+	}
