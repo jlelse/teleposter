@@ -2,6 +2,7 @@ package telegra.ph
 
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
@@ -275,6 +276,17 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 						.title(R.string.help)
 						.content(R.string.help_text, true)
 						.positiveText(android.R.string.ok)
+						.show()
+				true
+			}
+			R.id.login -> {
+				MaterialDialog.Builder(this)
+						.title(R.string.login)
+						.content(R.string.login_desc)
+						.positiveText(android.R.string.ok)
+						.onPositive { _, _ ->
+							startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/telegraph")))
+						}
 						.show()
 				true
 			}

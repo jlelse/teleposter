@@ -1,40 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-	  xmlns:app="http://schemas.android.com/apk/res-auto">
+	xmlns:app="http://schemas.android.com/apk/res-auto">
 	<item
 		android:id="@+id/create"
 		android:title="@string/create"
-		app:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 	<item
 		android:id="@+id/publish"
 		android:title="@string/publish"
-		app:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 	<item
 		android:id="@+id/edit"
 		android:title="@string/edit"
-		app:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 	<item
 		android:id="@+id/try_edit"
 		android:title="@string/try_edit"
-		app:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 	<item
 		android:id="@+id/bookmark"
 		android:title="@string/bookmark_this"
-		app:showAsAction="ifRoom"/>
+		app:showAsAction="never" />
 	<item
 		android:id="@+id/bookmarks"
 		android:title="@string/bookmarks"
-		app:showAsAction="ifRoom"/>
+		app:showAsAction="never" />
 	<item
 		android:id="@+id/published"
 		android:title="@string/published"
-		app:showAsAction="ifRoom"/>
+		app:showAsAction="never" />
 	<item
 		android:id="@+id/share"
 		android:title="@string/share"
-		app:showAsAction="ifRoom"/>
+		app:showAsAction="never" />
+	<item
+		android:id="@+id/login"
+		android:title="@string/login"
+		app:showAsAction="never" />
 	<item
 		android:id="@+id/help"
 		android:title="@string/help"
-		app:showAsAction="ifRoom"/>
+		app:showAsAction="never" />
 </menu>

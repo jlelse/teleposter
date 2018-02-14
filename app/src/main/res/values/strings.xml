@@ -6,14 +6,14 @@
 		<![CDATA[<h3>Used libraries</h3><a href=\"https://github.com/afollestad/material-dialogs\">Material Dialogs</a>, <a href=\"https://github.com/kittinunf/Fuel\">Fuel</a>, <a href=\"https://github.com/delight-im/Android-AdvancedWebView\">AdvancedWebView</a>, <a href=\"https://github.com/googlesamples/easypermissions\">EasyPermissions</a><h3>About</h3>This app is made by <a href="https://jlelse.me">Jan-Lukas Else</a> and it\'s code is published on <a href="https://github.com/jlelse/teleposter">Github</a>.]]></string>
 	<string name="bookmarks">Bookmarks</string>
 	<string name="bookmark_this">Bookmark this</string>
-	<string name="create">Create</string>
+	<string name="create">New</string>
 	<string name="title_question">Title?</string>
 	<string name="title_hint">Awesome Post #1</string>
 	<string name="delete">Delete</string>
 	<string name="delete_question">Do you really want to delete this?</string>
 	<string name="publish">Publish</string>
-	<string name="edit">Edit (safe)</string>
-	<string name="try_edit">Edit (unsafe)</string>
+	<string name="edit">Edit</string>
+	<string name="try_edit">Try to edit</string>
 	<string name="error">Error</string>
 	<string name="error_desc">Something unexpected happened!</string>
 	<string name="published">Published posts</string>
@@ -22,4 +22,6 @@
 	<string name="login_failed">Login failed. Try again!</string>
 	<string name="success">Success</string>
 	<string name="login_success">You successfully logged in!</string>
+	<string name="login">Login</string>
+	<string name="login_desc">Open the Telegraph bot in Telegram, select \"Login as * on this device\" and choose Teleposter.</string>
 </resources>
