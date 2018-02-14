@@ -8,8 +8,8 @@ android {
         applicationId "telegra.ph"
         minSdkVersion 15
         targetSdkVersion 27
-        versionCode 12
-        versionName "1.4.1"
+        versionCode 13
+        versionName "1.5"
         resConfigs "en"
     }
     buildTypes {
