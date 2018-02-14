@@ -115,7 +115,7 @@ object TelegraphApi {
 		val url: String = json.optString("url")
 		val title: String = json.optString("title")
 		val description: String = json.optString("description")
-		val authorName: String? = json.optString("authorName")
+		val authorName: String? = json.optString("author_name")
 		val authorUrl: String? = json.optString("author_url")
 		val imageUrl: String? = json.optString("image_url")
 		val content: String? = json.optJSONArray("content")?.parseContent()

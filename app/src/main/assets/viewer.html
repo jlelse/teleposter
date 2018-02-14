@@ -33,9 +33,9 @@
 		}
 
 		function setAuthor(author, url) {
-			if (author && url && author != "" && url != "") $('#viewerAuthor').html('<a href="' + url + '">' + author + '</a><br>');
-			else if (author && author != "") $('#viewerAuthor').html(author + '<br>');
-			if (url && url != "") $('#viewerAuthor').html('<a href="' + url + '"><i>Author</i></a><br>');
+			if (author && url && author.length > 0 && url.length > 0) $('#viewerAuthor').html('By <a href="' + url + '">' + author + '</a><br>');
+			else if (author && author.length > 0) $('#viewerAuthor').html('By ' + author + '<br>');
+			else if (url && url.length > 0) $('#viewerAuthor').html('By <a href="' + url + '"><i>Author</i></a><br>');
 			else $('#viewerAuthor').html('');
 		}
 
