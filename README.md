@@ -8,6 +8,13 @@ For more information about Telegra.ph visit https://telegram.org/blog/instant-vi
 
 Please take care, that this app might be unstable due to it's early development state!
 
+[<img src="https://f-droid.org/badge/get-it-on.png"
+     alt="Get it on F-Droid"
+     height="90">](https://f-droid.org/packages/telegra.ph/)
+[<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
+     alt="Get it on Google Play"
+     height="90">](https://play.google.com/store/apps/details?id=telegra.ph)
+
 ## LICENSE
 
 ```
