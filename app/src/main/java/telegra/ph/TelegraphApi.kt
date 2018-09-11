@@ -1,5 +1,6 @@
 package telegra.ph
 
+import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.android.core.Json
 import com.github.kittinunf.fuel.android.extension.responseJson
 import com.github.kittinunf.fuel.core.FuelError
@@ -37,7 +38,7 @@ object TelegraphApi {
 		parameters.forEach {
 			requestObject.put(it.first, it.second)
 		}
-		method.httpPost().header("Content-Type" to "application/json").body(requestObject.toString()).responseJson(handler)
+		method.httpPost().header(mapOf("Content-Type" to "application/json")).body(requestObject.toString()).responseJson(handler)
 	}
 
 	fun createAccount(shortName: String, authorName: String? = null, authorUrl: String? = null, callback: (success: Boolean, account: Account?, error: String?) -> Unit) {

@@ -9,6 +9,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.input.input
+import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import im.delight.android.webview.AdvancedWebView
 import java.net.URI
 
@@ -124,10 +126,10 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 
 	private fun showMessage(title: String? = null, message: String? = null) {
 		runOnUiThread {
-			MaterialDialog.Builder(this)
-					.title(title ?: "")
-					.content(message ?: "")
-					.positiveText(android.R.string.ok)
+			MaterialDialog(this)
+					.title(text = title ?: "")
+					.message(text = message ?: "")
+					.positiveButton(android.R.string.ok)
 					.show()
 		}
 	}
@@ -183,15 +185,15 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			}
 			R.id.publish -> {
 				editor?.getText { json ->
-					MaterialDialog.Builder(this)
+					MaterialDialog(this)
 							.title(R.string.title_question)
-							.input(getString(R.string.title_hint), currentPage?.title
-									?: "", { _, title ->
-								MaterialDialog.Builder(this)
+							.input(hintRes = R.string.title_hint, prefill = currentPage?.title
+									?: "") { _, title ->
+								MaterialDialog(this)
 										.title(R.string.name_question)
-										.input(getString(R.string.name_hint), if (isEdit) currentPage?.authorName
+										.input(hintRes = R.string.name_hint, prefill = if (isEdit) currentPage?.authorName
 												?: authorName ?: "" else authorName
-												?: "", { _, name ->
+												?: "") { _, name ->
 											if (!isEdit) authorName = name.toString()
 											if (isEdit) TelegraphApi.editPage(accessToken, currentPage?.path
 													?: "", authorName = name.toString(), title = title.toString(), content = json
@@ -203,9 +205,9 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 												if (success && page != null) showPage(page)
 												else showError(error)
 											}
-										})
+										}
 										.show()
-							})
+							}
 							.show()
 				}
 				true
@@ -215,24 +217,31 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 				true
 			}
 			R.id.bookmarks -> {
-				MaterialDialog.Builder(this)
+				MaterialDialog(this)
 						.title(R.string.bookmarks)
-						.positiveText(android.R.string.ok)
-						.items(bookmarks().reversed().map { it.second })
-						.itemsCallback { _, _, i, _ ->
-							loadPage(bookmarks().reversed().map { it.first }[i])
+						.positiveButton(R.string.open)
+						.negativeButton(android.R.string.cancel)
+						.listItemsSingleChoice(items = bookmarks().reversed().map { it.second }) { _, index, _ ->
+							loadPage(bookmarks().reversed().map { it.first }[index])
 						}
-						.itemsLongCallback { _, _, i, _ ->
-							MaterialDialog.Builder(this)
+						.show()
+				true
+			}
+			R.id.delete_bookmark -> {
+				MaterialDialog(this)
+						.title(R.string.delete_bookmark)
+						.positiveButton(R.string.delete)
+						.negativeButton(android.R.string.cancel)
+						.listItemsSingleChoice(items = bookmarks().reversed().map { it.second }) { _, index, _ ->
+							MaterialDialog(this)
 									.title(R.string.delete)
-									.content(R.string.delete_question)
-									.positiveText(android.R.string.yes)
-									.negativeText(android.R.string.no)
-									.onPositive { _, _ ->
-										deleteBookmark(bookmarks().reversed().map { it.first }[i])
+									.message(R.string.delete_question)
+									.positiveButton(android.R.string.yes)
+									.negativeButton(android.R.string.no)
+									.positiveButton { _ ->
+										deleteBookmark(bookmarks().reversed().map { it.first }[index])
 									}
 									.show()
-							true
 						}
 						.show()
 				true
@@ -240,11 +249,11 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			R.id.published -> {
 				TelegraphApi.getPageList(accessToken) { success, pageList, error ->
 					if (success && pageList != null && pageList.pages != null) {
-						MaterialDialog.Builder(this)
+						MaterialDialog(this)
 								.title(R.string.published)
-								.positiveText(android.R.string.ok)
-								.items(pageList.pages.map { it.title })
-								.itemsCallback { _, _, i, _ ->
+								.positiveButton(R.string.open)
+								.negativeButton(android.R.string.cancel)
+								.listItemsSingleChoice(items = pageList.pages.map { it.title }) { _, i, _ ->
 									loadPage(pageList.pages[i].path)
 								}
 								.show()
@@ -253,12 +262,13 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 				true
 			}
 			R.id.bookmark -> {
-				MaterialDialog.Builder(this)
+				MaterialDialog(this)
 						.title(R.string.title_question)
-						.input(getString(R.string.title_hint), "", { _, input ->
+						.input(hintRes = R.string.title_hint, prefill = currentPage?.title
+								?: "") { _, input ->
 							val curPage = currentPage
 							if (curPage?.url != null) addBookmark(curPage.url.split("/").last(), input.toString())
-						})
+						}
 						.show()
 				true
 			}
@@ -272,19 +282,19 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 				true
 			}
 			R.id.help -> {
-				MaterialDialog.Builder(this)
+				MaterialDialog(this)
 						.title(R.string.help)
-						.content(R.string.help_text, true)
-						.positiveText(android.R.string.ok)
+						.message(R.string.help_text)
+						.positiveButton(android.R.string.ok)
 						.show()
 				true
 			}
 			R.id.login -> {
-				MaterialDialog.Builder(this)
+				MaterialDialog(this)
 						.title(R.string.login)
-						.content(R.string.login_desc)
-						.positiveText(android.R.string.ok)
-						.onPositive { _, _ ->
+						.message(R.string.login_desc)
+						.positiveButton(android.R.string.ok)
+						.positiveButton { _ ->
 							startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/telegraph")))
 						}
 						.show()

@@ -26,6 +26,10 @@
 		android:title="@string/bookmarks"
 		app:showAsAction="never" />
 	<item
+		android:id="@+id/delete_bookmark"
+		android:title="@string/delete_bookmark"
+		app:showAsAction="never" />
+	<item
 		android:id="@+id/published"
 		android:title="@string/published"
 		app:showAsAction="never" />

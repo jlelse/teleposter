@@ -6,6 +6,7 @@
 		<![CDATA[<h3>Used libraries</h3><a href=\"https://github.com/afollestad/material-dialogs\">Material Dialogs</a>, <a href=\"https://github.com/kittinunf/Fuel\">Fuel</a>, <a href=\"https://github.com/delight-im/Android-AdvancedWebView\">AdvancedWebView</a><h3>About</h3>This app is made by <a href="https://jlelse.me">Jan-Lukas Else</a> and it\'s code is published on <a href="https://github.com/jlelse/teleposter">Github</a>.]]></string>
 	<string name="bookmarks">Bookmarks</string>
 	<string name="bookmark_this">Bookmark this</string>
+	<string name="delete_bookmark">Delete Bookmark</string>
 	<string name="create">New</string>
 	<string name="title_question">Title?</string>
 	<string name="title_hint">Awesome Post #1</string>
@@ -24,4 +25,5 @@
 	<string name="login_success">You successfully logged in!</string>
 	<string name="login">Login</string>
 	<string name="login_desc">Open the Telegraph bot in Telegram, select \"Login as * on this device\" and choose Teleposter.</string>
+	<string name="open">Open</string>
 </resources>
