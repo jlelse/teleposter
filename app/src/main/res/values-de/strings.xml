@@ -1,0 +1,29 @@
+<resources>
+	<string name="app_name">Teleposter</string>
+	<string name="share">Teilen</string>
+	<string name="help">Hilfe</string>
+	<string name="help_text">
+		<![CDATA[<h3>Verwendete Bibliotheken</h3><a href=\"https://github.com/afollestad/material-dialogs\">Material Dialogs</a>, <a href=\"https://github.com/kittinunf/Fuel\">Fuel</a>, <a href=\"https://github.com/delight-im/Android-AdvancedWebView\">AdvancedWebView</a><h3>About</h3>Diese App wurde von <a href="https://jlelse.me">Jan-Lukas Else</a> entwickelt und der Code bei <a href="https://github.com/jlelse/teleposter">Github</a> veröffentlicht.]]></string>
+	<string name="bookmarks">Lesezeichen</string>
+	<string name="bookmark_this">Als Lesezeichen setzen</string>
+	<string name="delete_bookmark">Lesezeichen löschen</string>
+	<string name="create">Neu</string>
+	<string name="title_question">Titel?</string>
+	<string name="title_hint">Fantastischer Post #1</string>
+	<string name="delete">Löschen</string>
+	<string name="delete_question">Wirklich löschen?</string>
+	<string name="publish">Veröffentlichen</string>
+	<string name="edit">Bearbeiten</string>
+	<string name="try_edit">Versuchen zu bearbeiten</string>
+	<string name="error">Fehler</string>
+	<string name="error_desc">Etwas unerwartetes ist passiert!</string>
+	<string name="published">Veröffentlichte Posts</string>
+	<string name="name_question">Dein Name?</string>
+	<string name="name_hint">Fantastischer Autor</string>
+	<string name="login_failed">Login fehlgeschlagen. Noch einmal versuchen!</string>
+	<string name="success">Erfolg</string>
+	<string name="login_success">Erfolgreich eingeloggt!</string>
+	<string name="login">Login</string>
+	<string name="login_desc">Öffne den Telegraph Bot in Telegram, wähle \"Login as * on this device\" und wähle Teleposter.</string>
+	<string name="open">Öffnen</string>
+</resources>
