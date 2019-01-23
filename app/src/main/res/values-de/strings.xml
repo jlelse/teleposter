@@ -1,9 +1,7 @@
 <resources>
 	<string name="app_name">Teleposter</string>
 	<string name="share">Teilen</string>
-	<string name="help">Hilfe</string>
-	<string name="help_text">
-		<![CDATA[<h3>Verwendete Bibliotheken</h3><a href=\"https://github.com/afollestad/material-dialogs\">Material Dialogs</a>, <a href=\"https://github.com/kittinunf/Fuel\">Fuel</a>, <a href=\"https://github.com/delight-im/Android-AdvancedWebView\">AdvancedWebView</a><h3>About</h3>Diese App wurde von <a href="https://jlelse.me">Jan-Lukas Else</a> entwickelt und der Code bei <a href="https://github.com/jlelse/teleposter">Github</a> veröffentlicht.]]></string>
+	<string name="about">Über</string>
 	<string name="bookmarks">Lesezeichen</string>
 	<string name="bookmark_this">Als Lesezeichen setzen</string>
 	<string name="delete_bookmark">Lesezeichen löschen</string>

@@ -27,7 +27,8 @@ class Editor : AdvancedWebView {
 		this.addJavascriptInterface(MyJavaScriptInterface(), "android")
 		this.settings.loadWithOverviewMode = true
 		this.settings.useWideViewPort = true
-		this.loadDataWithBaseURL("http://telegra.ph", context.assets.open("editor.html").bufferedReader().readText(), "text/html", "utf-8", null)
+		setMixedContentAllowed(true)
+		this.loadDataWithBaseURL("https://telegra.ph", context.assets.open("editor.html").bufferedReader().readText(), "text/html", "utf-8", null)
 	}
 
 	private inner class MyJavaScriptInterface {

@@ -27,7 +27,7 @@ class Viewer : AdvancedWebView {
 		this.settings.useWideViewPort = true
 		overScrollMode = View.OVER_SCROLL_NEVER
 		setMixedContentAllowed(true)
-		this.loadDataWithBaseURL("http://telegra.ph", context.assets.open("viewer.html").bufferedReader().readText(), "text/html", "utf-8", null)
+		this.loadDataWithBaseURL("https://telegra.ph", context.assets.open("viewer.html").bufferedReader().readText(), "text/html", "utf-8", null)
 	}
 
 	fun setArticleTitle(title: String) {

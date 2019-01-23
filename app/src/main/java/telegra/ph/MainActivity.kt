@@ -4,12 +4,13 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.input
+import com.afollestad.materialdialogs.list.listItemsMultiChoice
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import im.delight.android.webview.AdvancedWebView
 import java.net.URI
@@ -188,12 +189,12 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 					MaterialDialog(this)
 							.title(R.string.title_question)
 							.input(hintRes = R.string.title_hint, prefill = currentPage?.title
-									?: "") { _, title ->
+									?: "", allowEmpty = false) { _, title ->
 								MaterialDialog(this)
 										.title(R.string.name_question)
 										.input(hintRes = R.string.name_hint, prefill = if (isEdit) currentPage?.authorName
 												?: authorName ?: "" else authorName
-												?: "") { _, name ->
+												?: "", allowEmpty = true) { _, name ->
 											if (!isEdit) authorName = name.toString()
 											if (isEdit) TelegraphApi.editPage(accessToken, currentPage?.path
 													?: "", authorName = name.toString(), title = title.toString(), content = json
@@ -232,14 +233,15 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 						.title(R.string.delete_bookmark)
 						.positiveButton(R.string.delete)
 						.negativeButton(android.R.string.cancel)
-						.listItemsSingleChoice(items = bookmarks().reversed().map { it.second }) { _, index, _ ->
+						.listItemsMultiChoice(items = bookmarks().reversed().map { it.second }) { _, indices, _ ->
 							MaterialDialog(this)
 									.title(R.string.delete)
 									.message(R.string.delete_question)
 									.positiveButton(android.R.string.yes)
 									.negativeButton(android.R.string.no)
-									.positiveButton { _ ->
-										deleteBookmark(bookmarks().reversed().map { it.first }[index])
+									.positiveButton {
+										val tmpBookmarks = bookmarks().reversed().map { it.first }
+										for (index in indices) deleteBookmark(tmpBookmarks[index])
 									}
 									.show()
 						}
@@ -265,7 +267,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 				MaterialDialog(this)
 						.title(R.string.title_question)
 						.input(hintRes = R.string.title_hint, prefill = currentPage?.title
-								?: "") { _, input ->
+								?: "", allowEmpty = false) { _, input ->
 							val curPage = currentPage
 							if (curPage?.url != null) addBookmark(curPage.url.split("/").last(), input.toString())
 						}
@@ -281,12 +283,9 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 				startActivity(Intent.createChooser(shareIntent, getString(R.string.share)))
 				true
 			}
-			R.id.help -> {
-				MaterialDialog(this)
-						.title(R.string.help)
-						.message(R.string.help_text)
-						.positiveButton(android.R.string.ok)
-						.show()
+			R.id.about -> {
+				val aboutIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/jlelse/teleposter"))
+				startActivity(aboutIntent)
 				true
 			}
 			R.id.login -> {
@@ -294,7 +293,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 						.title(R.string.login)
 						.message(R.string.login_desc)
 						.positiveButton(android.R.string.ok)
-						.positiveButton { _ ->
+						.positiveButton {
 							startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/telegraph")))
 						}
 						.show()

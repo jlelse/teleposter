@@ -1,6 +1,5 @@
 package telegra.ph
 
-import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.android.core.Json
 import com.github.kittinunf.fuel.android.extension.responseJson
 import com.github.kittinunf.fuel.core.FuelError
@@ -140,6 +139,9 @@ object TelegraphApi {
 				if (optJSONObject(i) == null) optString(i)?.let {
 					content += it
 				}
+				// Fix mixed content
+				content = content.replace("http://telegra.ph", "https://telegra.ph")
+				content = content.replace("http://graph.org", "https://graph.org")
 			}
 			return content
 		}
