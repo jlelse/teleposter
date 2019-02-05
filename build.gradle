@@ -21,6 +21,5 @@ allprojects {
         mavenCentral()
         google()
         maven { url "https://jitpack.io" }
-        maven { url "https://dl.bintray.com/drummer-aidan/maven/" }
     }
 }
