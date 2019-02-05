@@ -15,17 +15,55 @@ import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import im.delight.android.webview.AdvancedWebView
 import java.net.URI
 
-class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
+class MainActivity : AppCompatActivity() {
 	private val viewer: Viewer? by lazy {
 		findViewById<Viewer?>(R.id.viewer)?.apply {
-			setListener(this@MainActivity, this@MainActivity)
+			setListener(this@MainActivity, object : AdvancedWebView.Listener {
+				override fun onPageFinished(url: String?) {
+					viewerPendingPage?.let { viewer?.showPage(it) }
+					viewerPendingPage = null
+				}
+
+				override fun onPageError(errorCode: Int, description: String?, failingUrl: String?) {
+				}
+
+				override fun onDownloadRequested(url: String?, suggestedFilename: String?, mimeType: String?, contentLength: Long, contentDisposition: String?, userAgent: String?) {
+				}
+
+				override fun onExternalPageRequest(url: String?) {
+					AdvancedWebView.Browsers.openUrl(this@MainActivity, url)
+				}
+
+				override fun onPageStarted(url: String?, favicon: Bitmap?) {
+				}
+			})
 		}
 	}
+	private var viewerPendingPage: TelegraphApi.Page? = null
 	private val editor: Editor? by lazy {
 		findViewById<Editor?>(R.id.editor)?.apply {
-			setListener(this@MainActivity, this@MainActivity)
+			setListener(this@MainActivity, object : AdvancedWebView.Listener {
+				override fun onPageFinished(url: String?) {
+					editorPendingPage?.let { editor?.setContent(it.content) }
+					editorPendingPage = null
+				}
+
+				override fun onPageError(errorCode: Int, description: String?, failingUrl: String?) {
+				}
+
+				override fun onDownloadRequested(url: String?, suggestedFilename: String?, mimeType: String?, contentLength: Long, contentDisposition: String?, userAgent: String?) {
+				}
+
+				override fun onExternalPageRequest(url: String?) {
+					AdvancedWebView.Browsers.openUrl(this@MainActivity, url)
+				}
+
+				override fun onPageStarted(url: String?, favicon: Bitmap?) {
+				}
+			})
 		}
 	}
+	private var editorPendingPage: TelegraphApi.Page? = null
 
 	private var currentPage: TelegraphApi.Page? = null
 	private var editorMode = true
@@ -51,34 +89,43 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 		}
 	}
 
-	private fun loadEditor(path: String? = null) {
-		runOnUiThread {
-			editorMode = true
-			canEdit = false
-			isEdit = false
-			invalidateOptionsMenu()
-			editor?.visibility = View.VISIBLE
-			viewer?.visibility = View.GONE
-			currentPage = null
-			// Load
-			if (path != null) TelegraphApi.getPage(accessToken, path, true) { success, page, error ->
-				if (success && page != null) {
-					isEdit = true
-					currentPage = page
-					editor?.setContent(page.content)
-				} else {
-					showError(error)
-				}
-			} else {
-				// Reset
-				editor?.reset()
+	override fun onNewIntent(intent: Intent?) {
+		super.onNewIntent(intent)
+		if (intent?.action == Intent.ACTION_VIEW) {
+			val uri = URI.create(intent.dataString)
+			when (uri.host) {
+				"telegra.ph", "graph.org" -> loadPage(uri.path)
+				"edit.telegra.ph", "edit.graph.org" -> login(uri.toString())
 			}
+		}
+	}
+
+	private fun loadEditor(path: String? = null) {
+		editorMode = true
+		canEdit = false
+		isEdit = false
+		invalidateOptionsMenu()
+		editor?.visibility = View.VISIBLE
+		viewer?.visibility = View.GONE
+		currentPage = null
+		// Load
+		if (path != null) TelegraphApi.getPage(accessToken, path, true) { success, page, error ->
+			if (success && page != null) {
+				isEdit = true
+				currentPage = page
+				editorPendingPage = page
+				editor?.prepare()
+			} else {
+				showError(error)
+			}
+		} else {
+			editor?.prepare()
 		}
 	}
 
 	private fun login(authUrl: String) {
 		TelegraphApi.login(authUrl) { success, accessToken, account ->
-			if (success && accessToken != null) {
+			if (success && !accessToken.isNullOrEmpty()) {
 				this.accessToken = accessToken
 				this.authorName = account?.authorName
 				showMessage(getString(R.string.success), getString(R.string.login_success))
@@ -87,38 +134,22 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 	}
 
 	private fun loadPage(path: String) {
-		runOnUiThread {
-			editorMode = false
-			canEdit = false
-			invalidateOptionsMenu()
-			viewer?.visibility = View.VISIBLE
-			editor?.visibility = View.GONE
-			currentPage = null
-			// Load
-			TelegraphApi.getPage(accessToken, path, true) { success, page, error ->
-				if (success && page != null) showPage(page)
-				else showError(error)
+		editorMode = false
+		canEdit = false
+		invalidateOptionsMenu()
+		viewer?.visibility = View.VISIBLE
+		editor?.visibility = View.GONE
+		currentPage = null
+		// Load
+		TelegraphApi.getPage(accessToken, path, true) { success, page, error ->
+			if (success && page != null) {
+				canEdit = page.canEdit ?: false
+				invalidateOptionsMenu()
+				currentPage = page
+				viewerPendingPage = page
+				viewer?.prepare()
 			}
-		}
-	}
-
-	private fun showPage(page: TelegraphApi.Page?) {
-		runOnUiThread {
-			editorMode = false
-			canEdit = page?.canEdit ?: false
-			invalidateOptionsMenu()
-			viewer?.visibility = View.VISIBLE
-			editor?.visibility = View.GONE
-			currentPage = page
-			viewer?.clearHistory()
-			// Show
-			page?.let {
-				viewer?.setArticleTitle(it.title)
-				viewer?.setAuthor(it.authorName, it.authorUrl)
-				viewer?.setViews(it.views)
-				if (it.content == null) viewer?.setDescription(it.description)
-				else viewer?.setContent(it.content)
-			}
+			else showError(error)
 		}
 	}
 
@@ -126,29 +157,11 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			?: getString(R.string.error_desc))
 
 	private fun showMessage(title: String? = null, message: String? = null) {
-		runOnUiThread {
-			MaterialDialog(this)
-					.title(text = title ?: "")
-					.message(text = message ?: "")
-					.positiveButton(android.R.string.ok)
-					.show()
-		}
-	}
-
-	override fun onPageFinished(url: String?) {
-	}
-
-	override fun onPageStarted(url: String?, favicon: Bitmap?) {
-	}
-
-	override fun onPageError(errorCode: Int, description: String?, failingUrl: String?) {
-	}
-
-	override fun onDownloadRequested(url: String?, suggestedFilename: String?, mimeType: String?, contentLength: Long, contentDisposition: String?, userAgent: String?) {
-	}
-
-	override fun onExternalPageRequest(url: String?) {
-		AdvancedWebView.Browsers.openUrl(this, url)
+		MaterialDialog(this@MainActivity)
+				.title(text = title ?: "")
+				.message(text = message ?: "")
+				.positiveButton(android.R.string.ok)
+				.show()
 	}
 
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -186,11 +199,11 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			}
 			R.id.publish -> {
 				editor?.getText { json ->
-					MaterialDialog(this)
+					MaterialDialog(this@MainActivity)
 							.title(R.string.title_question)
 							.input(hintRes = R.string.title_hint, prefill = currentPage?.title
 									?: "", allowEmpty = false) { _, title ->
-								MaterialDialog(this)
+								MaterialDialog(this@MainActivity)
 										.title(R.string.name_question)
 										.input(hintRes = R.string.name_hint, prefill = if (isEdit) currentPage?.authorName
 												?: authorName ?: "" else authorName
@@ -199,11 +212,11 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 											if (isEdit) TelegraphApi.editPage(accessToken, currentPage?.path
 													?: "", authorName = name.toString(), title = title.toString(), content = json
 													?: "", returnContent = true) { success, page, error ->
-												if (success && page != null) showPage(page)
+												if (success && page != null) loadPage(page.path)
 												else showError(error)
 											} else TelegraphApi.createPage(accessToken, content = json
 													?: "", title = title.toString(), authorName = name.toString(), returnContent = true) { success, page, error ->
-												if (success && page != null) showPage(page)
+												if (success && page != null) loadPage(page.path)
 												else showError(error)
 											}
 										}
@@ -218,7 +231,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 				true
 			}
 			R.id.bookmarks -> {
-				MaterialDialog(this)
+				MaterialDialog(this@MainActivity)
 						.title(R.string.bookmarks)
 						.positiveButton(R.string.open)
 						.negativeButton(android.R.string.cancel)
@@ -229,12 +242,12 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 				true
 			}
 			R.id.delete_bookmark -> {
-				MaterialDialog(this)
+				MaterialDialog(this@MainActivity)
 						.title(R.string.delete_bookmark)
 						.positiveButton(R.string.delete)
 						.negativeButton(android.R.string.cancel)
 						.listItemsMultiChoice(items = bookmarks().reversed().map { it.second }) { _, indices, _ ->
-							MaterialDialog(this)
+							MaterialDialog(this@MainActivity)
 									.title(R.string.delete)
 									.message(R.string.delete_question)
 									.positiveButton(android.R.string.yes)
@@ -251,7 +264,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 			R.id.published -> {
 				TelegraphApi.getPageList(accessToken) { success, pageList, error ->
 					if (success && pageList != null && pageList.pages != null) {
-						MaterialDialog(this)
+						MaterialDialog(this@MainActivity)
 								.title(R.string.published)
 								.positiveButton(R.string.open)
 								.negativeButton(android.R.string.cancel)
@@ -264,7 +277,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 				true
 			}
 			R.id.bookmark -> {
-				MaterialDialog(this)
+				MaterialDialog(this@MainActivity)
 						.title(R.string.title_question)
 						.input(hintRes = R.string.title_hint, prefill = currentPage?.title
 								?: "", allowEmpty = false) { _, input ->
@@ -289,7 +302,7 @@ class MainActivity : AppCompatActivity(), AdvancedWebView.Listener {
 				true
 			}
 			R.id.login -> {
-				MaterialDialog(this)
+				MaterialDialog(this@MainActivity)
 						.title(R.string.login)
 						.message(R.string.login_desc)
 						.positiveButton(android.R.string.ok)

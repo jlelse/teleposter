@@ -6,23 +6,17 @@ import android.util.AttributeSet
 import android.webkit.JavascriptInterface
 import im.delight.android.webview.AdvancedWebView
 
-class Editor : AdvancedWebView {
+class Editor @JvmOverloads constructor(
+		context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : AdvancedWebView(context, attrs, defStyleAttr) {
 	private var getCallback: (json: String?) -> Unit? = {}
 
-	constructor(context: Context) : super(context) {
-		init()
-	}
-
-	constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
-		init()
-	}
-
-	constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(context, attrs, defStyle) {
-		init()
+	init {
+		prepare()
 	}
 
 	@SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
-	private fun init() {
+	fun prepare() {
 		this.settings.javaScriptEnabled = true
 		this.addJavascriptInterface(MyJavaScriptInterface(), "android")
 		this.settings.loadWithOverviewMode = true
@@ -33,13 +27,10 @@ class Editor : AdvancedWebView {
 
 	private inner class MyJavaScriptInterface {
 		@JavascriptInterface
+		@SuppressWarnings("unused")
 		fun getText(json: String) {
 			getCallback(json)
 		}
-	}
-
-	fun reset() {
-		this.loadUrl("javascript:reset();")
 	}
 
 	fun setContent(content: String?) {
