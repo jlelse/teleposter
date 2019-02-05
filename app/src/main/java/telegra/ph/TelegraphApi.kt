@@ -1,14 +1,13 @@
 package telegra.ph
 
-import com.github.kittinunf.fuel.android.core.Json
-import com.github.kittinunf.fuel.android.extension.responseJson
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.Request
 import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.core.interceptors.redirectResponseInterceptor
-import com.github.kittinunf.fuel.core.interceptors.validatorResponseInterceptor
 import com.github.kittinunf.fuel.httpPost
+import com.github.kittinunf.fuel.json.FuelJson
+import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 import org.json.JSONArray
 import org.json.JSONObject
@@ -27,12 +26,11 @@ object TelegraphApi {
 		// Fix login
 		FuelManager.instance.addResponseInterceptor {
 			redirectResponseInterceptor(FuelManager.instance)
-			validatorResponseInterceptor(200..299)
 			it
 		}
 	}
 
-	private fun callService(method: String, parameters: List<Pair<String, Any?>>, handler: (Request, Response, Result<Json, FuelError>) -> Unit) {
+	private fun callService(method: String, parameters: List<Pair<String, Any?>>, handler: (Request, Response, Result<FuelJson, FuelError>) -> Unit) {
 		val requestObject = JSONObject()
 		parameters.forEach {
 			requestObject.put(it.first, it.second)
@@ -153,7 +151,7 @@ object TelegraphApi {
 
 	// Teleposter
 
-	private fun <T> handleResponse(result: Result<Json, FuelError>, handler: (success: Boolean, obj: T?, error: String?) -> Unit, callback: (obj: JSONObject) -> Unit) {
+	private fun <T> handleResponse(result: Result<FuelJson, FuelError>, handler: (success: Boolean, obj: T?, error: String?) -> Unit, callback: (obj: JSONObject) -> Unit) {
 		val (json, error) = result
 		if (error == null && json != null) {
 			val jsonObj = json.obj()
@@ -182,8 +180,8 @@ object TelegraphApi {
 	private fun telegraphLoginInterceptor(): (Request, Response) -> Response =
 			{ _, response ->
 				response.headers["Set-Cookie"]
-						?.flatMap { HttpCookie.parse(it) }
-						?.find { it.name == "tph_token" }
+						.flatMap { HttpCookie.parse(it) }
+						.find { it.name == "tph_token" }
 						?.let {
 							loginAccessToken = it.value
 						}
