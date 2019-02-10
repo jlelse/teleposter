@@ -1,58 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.2.1/css/bootstrap.min.css"
+    />
+    <style>
+      * {
+        max-width: 100% !important;
+        height: auto;
+        word-break: break-all;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <main role="main" class="container">
+      <div id="viewerTitle" class="mt-3"></div>
+      <div id="viewerAuthor"></div>
+      <div id="viewerViews"></div>
+      <div id="viewerContent"></div>
+    </main>
+    <script>
+      function setTitle(title) {
+        document.getElementById("viewerTitle").innerHTML =
+          "<h1>" + title + "</h1>";
+      }
 
-<head>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet"
-	      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.2.1/css/bootstrap.min.css">
-	<style>
-		* {
-			max-width: 100% !important;
-			height: auto;
-			word-break: break-all;
-			word-break: break-word;
-		}
+      function setAuthor(author, url) {
+        var viewerAuthor = document.getElementById("viewerAuthor");
+        if (author && url && author.length > 0 && url.length > 0)
+          viewerAuthor.innerHTML =
+            'By <a href="' + url + '">' + author + "</a><br>";
+        else if (author && author.length > 0)
+          viewerAuthor.innerHTML = "By " + author + "<br>";
+        else if (url && url.length > 0)
+          viewerAuthor.innerHTML =
+            'By <a href="' + url + '"><i>Author</i></a><br>';
+        else viewerAuthor.innerHTML = "";
+      }
 
-	</style>
-</head>
+      function setViews(views) {
+        document.getElementById("viewerViews").innerHTML =
+          views + " times viewed<br><br>";
+      }
 
-<body>
-<main role="main" class="container">
-	<div id="viewerTitle" class="mt-3"></div>
-	<div id="viewerAuthor"></div>
-	<div id="viewerViews"></div>
-	<div id="viewerContent"></div>
-</main>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script>
+      function setDescription(description) {
+        document.getElementById("viewerContent").innerHTML = description;
+      }
 
-		function setTitle(title) {
-			$('#viewerTitle').html('<h1>' + title + '</h1>');
-		}
-
-		function setAuthor(author, url) {
-			if (author && url && author.length > 0 && url.length > 0) $('#viewerAuthor').html('By <a href="' + url + '">' + author + '</a><br>');
-			else if (author && author.length > 0) $('#viewerAuthor').html('By ' + author + '<br>');
-			else if (url && url.length > 0) $('#viewerAuthor').html('By <a href="' + url + '"><i>Author</i></a><br>');
-			else $('#viewerAuthor').html('');
-		}
-
-		function setViews(views) {
-			$('#viewerViews').html(views + ' times viewed<br><br>');
-		}
-
-		function setDescription(description) {
-			$('#viewerContent').html(description);
-		}
-
-		function setContent(content) {
-			$('#viewerContent').html(content);
-		}
-
-
-</script>
-</body>
-
+      function setContent(content) {
+        document.getElementById("viewerContent").innerHTML = content;
+      }
+    </script>
+  </body>
 </html>
