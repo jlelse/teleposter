@@ -30,7 +30,7 @@ fun Context.saveBookmarks(bookmarks: List<Pair<String, String>>) {
 }
 
 var Context.accessToken: String
-	get() = PreferenceManager.getDefaultSharedPreferences(this).getString("accessToken", "")
+	get() = PreferenceManager.getDefaultSharedPreferences(this).getString("accessToken", "") as String
 	set(value) {
 		PreferenceManager.getDefaultSharedPreferences(this).edit().putString("accessToken", value).apply()
 	}
