@@ -36,7 +36,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'com.github.delight-im:Android-AdvancedWebView:v3.2.0'
     implementation 'com.afollestad.material-dialogs:core:2.0.3'
-    implementation 'com.afollestad.material-dialogs:input:2.0.3'
+    implementation 'com.afollestad.material-dialogs:input:2.4.0'
     implementation 'com.github.kittinunf.fuel:fuel:2.0.1'
     implementation 'com.github.kittinunf.fuel:fuel-android:2.0.1'
     implementation 'com.github.kittinunf.fuel:fuel-json:2.0.1'
