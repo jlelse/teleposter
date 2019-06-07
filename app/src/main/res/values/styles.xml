@@ -1,10 +1,10 @@
 <resources>
 
-	<style name="AppTheme" parent="Theme.AppCompat.Light">
-		<item name="colorPrimary">@color/colorPrimary</item>
-		<item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-		<item name="colorAccent">@color/colorAccent</item>
-		<item name="android:colorBackground">@android:color/white</item>
-	</style>
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColor</item>
+        <item name="android:textColorPrimary">@color/primaryTextColor</item>
+        <item name="md_color_button_text">@color/primaryTextColor</item>
+    </style>
 
 </resources>

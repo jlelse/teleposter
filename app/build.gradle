@@ -31,13 +31,11 @@ android {
 
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'androidx.recyclerview:recyclerview:1.0.0'
-    implementation 'androidx.legacy:legacy-support-v13:1.0.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'com.github.delight-im:Android-AdvancedWebView:v3.2.0'
-    implementation 'com.afollestad.material-dialogs:core:2.5.0'
-    implementation 'com.afollestad.material-dialogs:input:2.5.0'
-    implementation 'com.github.kittinunf.fuel:fuel:2.0.1'
-    implementation 'com.github.kittinunf.fuel:fuel-android:2.0.1'
-    implementation 'com.github.kittinunf.fuel:fuel-json:2.0.1'
+    implementation 'com.github.delight-im:Android-AdvancedWebView:3.2.0'
+    implementation 'com.afollestad.material-dialogs:core:2.8.1'
+    implementation 'com.afollestad.material-dialogs:input:2.8.1'
+    implementation 'com.github.kittinunf.fuel:fuel:2.1.0'
+    implementation 'com.github.kittinunf.fuel:fuel-android:2.1.0'
+    implementation 'com.github.kittinunf.fuel:fuel-json:2.1.0'
 }
