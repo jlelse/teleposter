@@ -36,6 +36,6 @@ dependencies {
     implementation 'com.afollestad.material-dialogs:core:2.8.1'
     implementation 'com.afollestad.material-dialogs:input:2.8.1'
     implementation 'com.github.kittinunf.fuel:fuel:2.1.0'
-    implementation 'com.github.kittinunf.fuel:fuel-android:2.1.0'
+    implementation 'com.github.kittinunf.fuel:fuel-android:2.2.0'
     implementation 'com.github.kittinunf.fuel:fuel-json:2.1.0'
 }
