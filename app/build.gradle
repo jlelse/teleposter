@@ -30,7 +30,7 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'com.github.delight-im:Android-AdvancedWebView:3.2.0'
     implementation 'com.afollestad.material-dialogs:core:2.8.1'
