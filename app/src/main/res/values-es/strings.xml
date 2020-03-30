@@ -1,0 +1,27 @@
+<resources>
+	<string name="app_name">Teleposter</string>
+	<string name="share">Compartir</string>
+	<string name="about">Acerca de</string>
+	<string name="bookmarks">Favoritos</string>
+	<string name="bookmark_this">Añadir a favoritos</string>
+	<string name="delete_bookmark">Borrar favorito</string>
+	<string name="create">Nueva</string>
+	<string name="title_question">¿Título?</string>
+	<string name="title_hint">Entrada increíble #1</string>
+	<string name="delete">Borrar</string>
+	<string name="delete_question">¿Realmente quiere eliminar esto?</string>
+	<string name="publish">Publicar</string>
+	<string name="edit">Editar</string>
+	<string name="try_edit">Prueba a editar.</string>
+	<string name="error">Error</string>
+	<string name="error_desc">¡Pasó algo inesperado!</string>
+	<string name="published">Entradas publicadas</string>
+	<string name="name_question">¿Su nombre?</string>
+	<string name="name_hint">Awesome Writer</string>
+	<string name="login_failed">Login fallido. ¡Inténtelo de nuevo!</string>
+	<string name="success">Hecho</string>
+	<string name="login_success">¡Login realizado correctamente!</string>
+	<string name="login">Login</string>
+	<string name="login_desc">Abre el bot de Telegraph en Telegram, elija \"Login as * on this device\" y seleccione Teleposter.</string>
+	<string name="open">Abrir</string>
+</resources>
