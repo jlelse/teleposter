@@ -1,0 +1,27 @@
+<resources>
+	<string name="app_name">Teleposter</string>
+	<string name="share">Paylaş</string>
+	<string name="about">Hakkında</string>
+	<string name="bookmarks">Yer imleri</string>
+	<string name="bookmark_this">Buna yer işareti koy</string>
+	<string name="delete_bookmark">Yer işaretini sil</string>
+	<string name="create">Yeni</string>
+	<string name="title_question">Başlık?</string>
+	<string name="title_hint">Harika mesaj #1</string>
+	<string name="delete">Sil</string>
+	<string name="delete_question">Bunu gerçekten silmek istiyor musun?</string>
+	<string name="publish">Yayınla</string>
+	<string name="edit">Düzenle</string>
+	<string name="try_edit">Düzenlemeye çalış</string>
+	<string name="error">Hata</string>
+	<string name="error_desc">Beklenmedik bir şey oldu!</string>
+	<string name="published">Mesaj yayınlandı</string>
+	<string name="name_question">Adınız?</string>
+	<string name="name_hint">Süper yazar</string>
+	<string name="login_failed">Giriş başarısız.  Tekrar deneyin!</string>
+	<string name="success">Başarılı</string>
+	<string name="login_success">Başarıyla giriş yaptınız!</string>
+	<string name="login">Giriş</string>
+	<string name="login_desc">Telegram'da Telegraph botunu açın, \"Bu cihazda * olarak oturum aç\" seçeneğini ve Teleposter'ı seçin.</string>
+	<string name="open">Aç</string>
+</resources>
