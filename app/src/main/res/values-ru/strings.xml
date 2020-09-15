@@ -1,0 +1,27 @@
+<resources>
+	<string name="app_name">Teleposter</string>
+	<string name="share">Поделиться</string>
+	<string name="about">Информация</string>
+	<string name="bookmarks">Закладки</string>
+	<string name="bookmark_this">Добавить в закладки</string>
+	<string name="delete_bookmark">Удалить закладку</string>
+	<string name="create">Новый</string>
+	<string name="title_question">Заглавие?</string>
+	<string name="title_hint">Крутой пост #1</string>
+	<string name="delete">Удалить</string>
+	<string name="delete_question">Вы действительно хотите удалить это?</string>
+	<string name="publish">Публикация</string>
+	<string name="edit">Изменить</string>
+	<string name="try_edit">Повторить изменение</string>
+	<string name="error">Ошибка</string>
+	<string name="error_desc">Случилось что-то неожиданное!</string>
+	<string name="published">Опубликованные посты</string>
+	<string name="name_question">Ваше имя?</string>
+	<string name="name_hint">Крутой писатель</string>
+	<string name="login_failed">Неудачный вход. Попробуй еще раз!</string>
+	<string name="success">Готово</string>
+	<string name="login_success">Вы успешно вошли!</string>
+	<string name="login">Вход</string>
+	<string name="login_desc">Откройте Telegraph bot в Telegram, выберите \"войти как * на этом устройстве\" и выберите Teleposter.</string>
+	<string name="open">Открыть</string>
+</resources>
