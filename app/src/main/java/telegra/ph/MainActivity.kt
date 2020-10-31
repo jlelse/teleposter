@@ -250,8 +250,8 @@ class MainActivity : AppCompatActivity() {
 							MaterialDialog(this@MainActivity)
 									.title(R.string.delete)
 									.message(R.string.delete_question)
-									.positiveButton(android.R.string.yes)
-									.negativeButton(android.R.string.no)
+									.positiveButton(R.string.yes)
+									.negativeButton(R.string.no)
 									.positiveButton {
 										val tmpBookmarks = bookmarks().reversed().map { it.first }
 										for (index in indices) deleteBookmark(tmpBookmarks[index])

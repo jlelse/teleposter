@@ -1,7 +1,7 @@
 package telegra.ph
 
 import android.content.Context
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 
 const val listItemSeparator = "+++;+++"
 const val itemSeparator = "xxx;xxx"

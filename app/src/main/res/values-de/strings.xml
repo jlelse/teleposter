@@ -1,5 +1,7 @@
 <resources>
 	<string name="app_name">Teleposter</string>
+	<string name="yes">Ja</string>
+	<string name="no">Nein</string>
 	<string name="share">Teilen</string>
 	<string name="about">Über</string>
 	<string name="bookmarks">Lesezeichen</string>

@@ -2,15 +2,15 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion "28.0.3"
+    compileSdkVersion 30
+    buildToolsVersion "30.0.2"
     defaultConfig {
         applicationId "telegra.ph"
         minSdkVersion 19
-        targetSdkVersion 28
-        versionCode 17
-        versionName "1.5.4"
-        resConfigs "en", "de"
+        targetSdkVersion 30
+        versionCode 18
+        versionName "1.5.5"
+        resConfigs "en", "de", "es", "tr", "ru"
     }
     buildTypes {
         debug {
@@ -30,12 +30,13 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.preference:preference-ktx:1.1.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'com.github.delight-im:Android-AdvancedWebView:3.2.0'
-    implementation 'com.afollestad.material-dialogs:core:2.8.1'
-    implementation 'com.afollestad.material-dialogs:input:2.8.1'
-    implementation 'com.github.kittinunf.fuel:fuel:2.1.0'
-    implementation 'com.github.kittinunf.fuel:fuel-android:2.1.0'
-    implementation 'com.github.kittinunf.fuel:fuel-json:2.1.0'
+    implementation 'com.github.delight-im:Android-AdvancedWebView:3.2.1'
+    implementation 'com.afollestad.material-dialogs:core:3.3.0'
+    implementation 'com.afollestad.material-dialogs:input:3.3.0'
+    implementation 'com.github.kittinunf.fuel:fuel:2.3.0'
+    implementation 'com.github.kittinunf.fuel:fuel-android:2.3.0'
+    implementation 'com.github.kittinunf.fuel:fuel-json:2.3.0'
 }
